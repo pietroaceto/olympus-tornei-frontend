@@ -1,11 +1,18 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
 :root {
   --text: #3f3d45;
   --text-h: #08060d;
   --text-muted: #8a8792;
   --bg: #fff;
   --bg-alt: #f7f6fa;
-  --border: #e5e4e7;
-  --accent: #7c3aed;
+  --legacy-border: #e5e4e7;
+  --legacy-accent: #7c3aed;
   --accent-bg: rgba(124, 58, 237, 0.08);
   --accent-contrast: #fff;
   --win: #16a34a;
@@ -17,6 +24,38 @@
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: #7c3aed;
+  --primary-foreground: #fff;
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: #7c3aed;
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -26,8 +65,8 @@
     --text-muted: #9a97a3;
     --bg: #16171d;
     --bg-alt: #1e1f28;
-    --border: #2e303a;
-    --accent: #a78bfa;
+    --legacy-border: #2e303a;
+    --legacy-accent: #a78bfa;
     --accent-bg: rgba(167, 139, 250, 0.14);
     --accent-contrast: #16171d;
     --win: #4ade80;
@@ -95,7 +134,7 @@ button {
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--legacy-border);
   border-radius: 12px;
   background: var(--bg-alt);
   text-decoration: none;
@@ -128,7 +167,7 @@ button {
   gap: 20px;
   flex-wrap: wrap;
   padding: 20px 16px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--legacy-border);
 }
 
 .tournament-header__brand {
@@ -150,7 +189,7 @@ button {
   font: inherit;
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--legacy-border);
   background: var(--bg);
   color: var(--text);
   max-width: 280px;
@@ -188,7 +227,7 @@ button {
 
 .tournament-sidebar__item--active {
   background: var(--accent-bg);
-  color: var(--accent);
+  color: var(--legacy-accent);
   font-weight: 600;
 }
 
@@ -224,7 +263,7 @@ button {
 }
 
 .category-tabs__tab {
-  border: 1px solid var(--border);
+  border: 1px solid var(--legacy-border);
   background: var(--bg);
   color: var(--text);
   padding: 8px 20px;
@@ -235,8 +274,8 @@ button {
 }
 
 .category-tabs__tab--active {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--legacy-accent);
+  border-color: var(--legacy-accent);
   color: var(--accent-contrast);
 }
 
@@ -312,7 +351,7 @@ button {
   flex-direction: column;
   width: 100%;
   padding: 0;
-  border: 1px solid var(--border);
+  border: 1px solid var(--legacy-border);
   border-radius: 10px;
   background: var(--bg-alt);
   overflow: hidden;
@@ -344,7 +383,7 @@ button {
 
 .bracket-match__divider {
   height: 1px;
-  background: var(--border);
+  background: var(--legacy-border);
 }
 
 .bracket-round:not(:last-child) .bracket-match::after {
@@ -354,7 +393,7 @@ button {
   right: -21px;
   width: 20px;
   height: 1px;
-  background: var(--border);
+  background: var(--legacy-border);
 }
 
 .bracket-round:not(:first-child) .bracket-match::before {
@@ -364,7 +403,7 @@ button {
   left: -21px;
   width: 20px;
   height: 1px;
-  background: var(--border);
+  background: var(--legacy-border);
 }
 
 .match-list {
@@ -383,7 +422,7 @@ button {
   align-items: center;
   gap: 8px;
   background: var(--bg-alt);
-  border: 1px solid var(--border);
+  border: 1px solid var(--legacy-border);
   border-radius: 10px;
   padding: 12px 16px;
   text-align: left;
@@ -416,14 +455,14 @@ button {
   font-size: 12px;
   padding: 4px 10px;
   border-radius: 999px;
-  background: var(--border);
+  background: var(--legacy-border);
   color: var(--text-muted);
   white-space: nowrap;
 }
 
 .match-row__status--played {
   background: var(--accent-bg);
-  color: var(--accent);
+  color: var(--legacy-accent);
 }
 
 .standings-table, .submatch-table {
@@ -435,7 +474,7 @@ button {
 .submatch-table th, .submatch-table td {
   padding: 10px 8px;
   text-align: center;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--legacy-border);
 }
 
 .standings-table th, .submatch-table th {
@@ -450,7 +489,7 @@ button {
 
 .standings-table__points {
   font-weight: 700;
-  color: var(--accent);
+  color: var(--legacy-accent);
 }
 
 .match-detail {
@@ -474,7 +513,7 @@ button {
   align-self: flex-start;
   background: none;
   border: none;
-  color: var(--accent);
+  color: var(--legacy-accent);
   padding: 0;
   font-weight: 600;
   text-decoration: none;
@@ -495,7 +534,7 @@ button {
   gap: 24px;
   flex-wrap: wrap;
   padding: 16px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--legacy-border);
   margin-bottom: 24px;
 }
 
@@ -517,7 +556,7 @@ button {
 }
 
 .admin-header__nav a.active {
-  color: var(--accent);
+  color: var(--legacy-accent);
 }
 
 .admin-header__user {
@@ -553,7 +592,7 @@ button {
 }
 
 .admin-card {
-  border: 1px solid var(--border);
+  border: 1px solid var(--legacy-border);
   border-radius: 12px;
   padding: 16px;
   background: var(--bg-alt);
@@ -592,14 +631,14 @@ button {
   font: inherit;
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--legacy-border);
   background: var(--bg);
   color: var(--text);
 }
 
 .btn {
   border-radius: 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--legacy-border);
   background: var(--bg);
   color: var(--text);
   padding: 8px 16px;
@@ -624,8 +663,8 @@ button {
 }
 
 .btn--primary {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--legacy-accent);
+  border-color: var(--legacy-accent);
   color: var(--accent-contrast);
 }
 
@@ -664,7 +703,7 @@ button {
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--legacy-border);
   border-radius: 10px;
 }
 
@@ -690,7 +729,7 @@ button {
 }
 
 .team-card {
-  border: 1px solid var(--border);
+  border: 1px solid var(--legacy-border);
   border-radius: 10px;
   padding: 12px;
   background: var(--bg);
@@ -787,7 +826,7 @@ button {
 }
 
 .match-card__box {
-  border: 1px solid var(--border);
+  border: 1px solid var(--legacy-border);
   border-radius: 14px;
   background: var(--bg-alt);
   overflow: hidden;
@@ -804,7 +843,7 @@ button {
 
 .match-card__divider {
   height: 1px;
-  background: var(--border);
+  background: var(--legacy-border);
 }
 
 .match-card__team-info {
@@ -855,7 +894,6 @@ button {
   padding: 0;
 }
 
-
 .manual-bracket__slots {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -875,7 +913,7 @@ button {
   font: inherit;
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--legacy-border);
   background: var(--bg);
   color: var(--text);
 }
@@ -883,5 +921,97 @@ button {
 @media (max-width: 640px) {
   .match-card__row {
     justify-content: flex-start;
+  }
+}
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: 'Geist Variable', sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: #a78bfa;
+  --primary-foreground: #16171d;
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: #a78bfa;
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    @apply font-sans;
   }
 }
