@@ -75,7 +75,9 @@ export default function DashboardPage() {
           aria-label="Nuovo torneo"
           onClick={() => setShowCreateForm((v) => !v)}
         >
-          +
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M12 4v16M4 12h16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+          </svg>
         </button>
       </div>
       {error && <p className="form-error">{error}</p>}
