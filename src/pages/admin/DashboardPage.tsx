@@ -13,6 +13,7 @@ export default function DashboardPage() {
   const [tournaments, setTournaments] = useState<TournamentResponse[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [name, setName] = useState('');
   const [season, setSeason] = useState('');
   const [status, setStatus] = useState<TournamentStatus>('DRAFT');
@@ -43,6 +44,7 @@ export default function DashboardPage() {
       setName('');
       setSeason('');
       setStatus('DRAFT');
+      setShowCreateForm(false);
       loadTournaments();
     } catch (err) {
       setError(adminErrorMessage(err, onUnauthorized));
@@ -61,18 +63,62 @@ export default function DashboardPage() {
     }
   }
 
+  const sortedTournaments = tournaments ? [...tournaments].sort((a, b) => b.id - a.id) : null;
+
   return (
     <div className="admin-page">
-      <h2>Tornei</h2>
+      <div className="admin-page__header">
+        <h2>Tornei</h2>
+        <button
+          type="button"
+          className="btn btn--primary btn--icon"
+          aria-label="Nuovo torneo"
+          onClick={() => setShowCreateForm((v) => !v)}
+        >
+          +
+        </button>
+      </div>
       {error && <p className="form-error">{error}</p>}
 
-      {!tournaments ? (
+      {showCreateForm && (
+        <section className="admin-card">
+          <h3>Nuovo torneo</h3>
+          <form className="admin-form" onSubmit={handleCreate}>
+            <label>
+              Nome
+              <input value={name} onChange={(e) => setName(e.target.value)} required autoFocus />
+            </label>
+            <label>
+              Stagione
+              <input value={season} onChange={(e) => setSeason(e.target.value)} placeholder="es. 2026" />
+            </label>
+            <label>
+              Stato
+              <select value={status} onChange={(e) => setStatus(e.target.value as TournamentStatus)}>
+                <option value="DRAFT">Bozza</option>
+                <option value="ACTIVE">In corso</option>
+                <option value="COMPLETED">Concluso</option>
+              </select>
+            </label>
+            <div className="admin-actions">
+              <button type="submit" className="btn btn--primary" disabled={submitting}>
+                Crea torneo
+              </button>
+              <button type="button" className="btn btn--ghost" onClick={() => setShowCreateForm(false)}>
+                Annulla
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
+
+      {!sortedTournaments ? (
         <p className="page-message">Caricamento...</p>
-      ) : tournaments.length === 0 ? (
+      ) : sortedTournaments.length === 0 ? (
         <p className="page-message">Nessun torneo ancora creato.</p>
       ) : (
         <ul className="admin-list">
-          {tournaments.map((t) => (
+          {sortedTournaments.map((t) => (
             <li key={t.id} className="admin-list__row">
               <Link to={`/admin/tornei/${t.id}`} className="admin-list__title">
                 {t.name}
@@ -87,31 +133,6 @@ export default function DashboardPage() {
           ))}
         </ul>
       )}
-
-      <section className="admin-card">
-        <h3>Nuovo torneo</h3>
-        <form className="admin-form" onSubmit={handleCreate}>
-          <label>
-            Nome
-            <input value={name} onChange={(e) => setName(e.target.value)} required />
-          </label>
-          <label>
-            Stagione
-            <input value={season} onChange={(e) => setSeason(e.target.value)} placeholder="es. 2026" />
-          </label>
-          <label>
-            Stato
-            <select value={status} onChange={(e) => setStatus(e.target.value as TournamentStatus)}>
-              <option value="DRAFT">Bozza</option>
-              <option value="ACTIVE">In corso</option>
-              <option value="COMPLETED">Concluso</option>
-            </select>
-          </label>
-          <button type="submit" className="btn btn--primary" disabled={submitting}>
-            Crea torneo
-          </button>
-        </form>
-      </section>
     </div>
   );
 }
