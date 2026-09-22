@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Toaster } from './components/ui/sonner';
 import { AuthProvider } from './auth/AuthContext';
-import TournamentShell from './components/TournamentShell';
+import PublicShell from './components/PublicShell';
 import AdminLayout from './components/AdminLayout';
 import TournamentListPage from './pages/TournamentListPage';
 import SchedulePage from './pages/SchedulePage';
@@ -20,15 +20,17 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<TournamentListPage />} />
-          <Route path="/tornei/:tournamentId" element={<TournamentShell />}>
-            <Route path="gironi" element={<SchedulePage />} />
-            <Route path="gironi/:categoryId" element={<SchedulePage />} />
-            <Route path="classifica" element={<StandingsPage />} />
-            <Route path="classifica/:categoryId" element={<StandingsPage />} />
-            <Route path="tabellone" element={<BracketPage />} />
-            <Route path="tabellone/:categoryId" element={<BracketPage />} />
-            <Route path="partita/:matchId" element={<MatchDetailPage />} />
+          <Route element={<PublicShell />}>
+            <Route path="/" element={<TournamentListPage />} />
+            <Route path="/tornei/:tournamentId">
+              <Route path="gironi" element={<SchedulePage />} />
+              <Route path="gironi/:categoryId" element={<SchedulePage />} />
+              <Route path="classifica" element={<StandingsPage />} />
+              <Route path="classifica/:categoryId" element={<StandingsPage />} />
+              <Route path="tabellone" element={<BracketPage />} />
+              <Route path="tabellone/:categoryId" element={<BracketPage />} />
+              <Route path="partita/:matchId" element={<MatchDetailPage />} />
+            </Route>
           </Route>
 
           <Route path="/admin/login" element={<LoginPage />} />

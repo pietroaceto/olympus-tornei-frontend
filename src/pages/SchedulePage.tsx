@@ -4,19 +4,19 @@ import { apiGet } from '../api/client';
 import type { RoundResponse } from '../api/types';
 import { matchStatusLabel, teamLabel } from '../lib/format';
 import { resolveActiveCategory } from '../lib/categorySelection';
-import type { TournamentOutletContext } from '../components/TournamentShell';
+import type { PublicOutletContext } from '../components/PublicShell';
 import CategoryTabs from '../components/CategoryTabs';
 import { Badge } from '../components/ui/badge';
 
 export default function SchedulePage() {
-  const { tournament, categories } = useOutletContext<TournamentOutletContext>();
+  const { tournament, categories } = useOutletContext<PublicOutletContext>();
   const { categoryId } = useParams();
   const navigate = useNavigate();
   const [rounds, setRounds] = useState<RoundResponse[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const basePath = `/tornei/${tournament.id}/gironi`;
-  const { activeCategory, redirectToId } = resolveActiveCategory(categories, categoryId);
+  const basePath = `/tornei/${tournament?.id}/gironi`;
+  const { activeCategory, redirectToId } = resolveActiveCategory(categories ?? [], categoryId);
 
   useEffect(() => {
     if (!activeCategory || activeCategory.competitionFormat === 'TABELLONE') return;
@@ -44,7 +44,7 @@ export default function SchedulePage() {
 
   return (
     <div>
-      <CategoryTabs categories={categories} basePath={basePath} />
+      <CategoryTabs categories={categories ?? []} basePath={basePath} />
 
       {activeCategory.competitionFormat === 'TABELLONE' ? (
         <div className="py-12 text-center text-muted-foreground">
@@ -70,7 +70,7 @@ export default function SchedulePage() {
                       type="button"
                       className="grid w-full grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-xl border bg-card px-4 py-3 text-left text-card-foreground disabled:cursor-default disabled:opacity-75"
                       disabled={match.status !== 'PLAYED'}
-                      onClick={() => navigate(`/tornei/${tournament.id}/partita/${match.id}`)}
+                      onClick={() => navigate(`/tornei/${tournament?.id}/partita/${match.id}`)}
                     >
                       <span className="truncate">{teamLabel(match.homeTeamName)}</span>
                       <span className="text-center text-sm text-muted-foreground">vs</span>

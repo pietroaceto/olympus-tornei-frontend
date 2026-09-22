@@ -3,21 +3,21 @@ import { Navigate, useNavigate, useOutletContext, useParams } from 'react-router
 import { apiGet } from '../api/client';
 import type { BracketResponse } from '../api/types';
 import { resolveActiveCategory } from '../lib/categorySelection';
-import type { TournamentOutletContext } from '../components/TournamentShell';
+import type { PublicOutletContext } from '../components/PublicShell';
 import CategoryTabs from '../components/CategoryTabs';
 import Bracket from '../components/Bracket';
 
 const POLL_INTERVAL_MS = 15_000;
 
 export default function BracketPage() {
-  const { tournament, categories } = useOutletContext<TournamentOutletContext>();
+  const { tournament, categories } = useOutletContext<PublicOutletContext>();
   const { categoryId } = useParams();
   const navigate = useNavigate();
   const [bracket, setBracket] = useState<BracketResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const basePath = `/tornei/${tournament.id}/tabellone`;
-  const { activeCategory, redirectToId } = resolveActiveCategory(categories, categoryId);
+  const basePath = `/tornei/${tournament?.id}/tabellone`;
+  const { activeCategory, redirectToId } = resolveActiveCategory(categories ?? [], categoryId);
 
   useEffect(() => {
     if (!activeCategory) return;
@@ -52,7 +52,7 @@ export default function BracketPage() {
 
   return (
     <div>
-      <CategoryTabs categories={categories} basePath={basePath} />
+      <CategoryTabs categories={categories ?? []} basePath={basePath} />
 
       {error ? (
         <div className="py-12 text-center text-destructive">Errore nel caricamento: {error}</div>
@@ -64,7 +64,7 @@ export default function BracketPage() {
         <Bracket
           rounds={bracket.rounds}
           totalRounds={bracket.totalRounds}
-          onMatchClick={(matchId) => navigate(`/tornei/${tournament.id}/partita/${matchId}`)}
+          onMatchClick={(matchId) => navigate(`/tornei/${tournament?.id}/partita/${matchId}`)}
           isMatchClickable={(match) => match.status === 'PLAYED'}
         />
       )}

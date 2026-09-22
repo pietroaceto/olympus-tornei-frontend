@@ -18,8 +18,10 @@ export default function CategoryTabs({
           to={`${basePath}/${cat.id}`}
           className={({ isActive }) =>
             cn(
-              'inline-block rounded-full border px-5 py-2 font-semibold',
-              isActive ? 'border-primary bg-primary text-primary-foreground' : 'bg-background text-foreground',
+              'inline-block rounded-full border px-5 py-2 font-semibold transition-colors',
+              isActive
+                ? 'border-transparent bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white'
+                : 'bg-background text-foreground hover:bg-muted',
             )
           }
         >

@@ -3,18 +3,18 @@ import { Navigate, useOutletContext, useParams } from 'react-router-dom';
 import { apiGet } from '../api/client';
 import type { StandingRowResponse } from '../api/types';
 import { resolveActiveCategory } from '../lib/categorySelection';
-import type { TournamentOutletContext } from '../components/TournamentShell';
+import type { PublicOutletContext } from '../components/PublicShell';
 import CategoryTabs from '../components/CategoryTabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 
 export default function StandingsPage() {
-  const { tournament, categories } = useOutletContext<TournamentOutletContext>();
+  const { tournament, categories } = useOutletContext<PublicOutletContext>();
   const { categoryId } = useParams();
   const [rows, setRows] = useState<StandingRowResponse[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const basePath = `/tornei/${tournament.id}/classifica`;
-  const { activeCategory, redirectToId } = resolveActiveCategory(categories, categoryId);
+  const basePath = `/tornei/${tournament?.id}/classifica`;
+  const { activeCategory, redirectToId } = resolveActiveCategory(categories ?? [], categoryId);
 
   useEffect(() => {
     if (!activeCategory || activeCategory.competitionFormat === 'TABELLONE') return;
@@ -42,7 +42,7 @@ export default function StandingsPage() {
 
   return (
     <div>
-      <CategoryTabs categories={categories} basePath={basePath} />
+      <CategoryTabs categories={categories ?? []} basePath={basePath} />
 
       {activeCategory.competitionFormat === 'TABELLONE' ? (
         <div className="py-12 text-center text-muted-foreground">
