@@ -20,6 +20,19 @@ function currentSection(pathname: string): string {
   return match ? match.key : 'gironi';
 }
 
+/**
+ * Estrae l'eventuale :categoryId dall'URL corrente (es. "3" da
+ * "/tornei/5/gironi/3"), così cambiando sezione dalla sidebar si resta sulla
+ * stessa categoria invece di tornare sempre alla prima (Gold).
+ */
+function currentCategoryId(pathname: string, tournamentId: string | undefined, section: string): string | null {
+  const prefix = `/tornei/${tournamentId}/${section}/`;
+  if (!pathname.startsWith(prefix)) {
+    return null;
+  }
+  return pathname.slice(prefix.length).split('/')[0] || null;
+}
+
 export default function TournamentShell() {
   const { tournamentId } = useParams();
   const navigate = useNavigate();
@@ -61,6 +74,7 @@ export default function TournamentShell() {
   }
 
   const section = currentSection(location.pathname);
+  const categoryId = currentCategoryId(location.pathname, tournamentId, section);
 
   return (
     <div className="tournament-shell">
@@ -92,7 +106,9 @@ export default function TournamentShell() {
               key={s.key}
               type="button"
               className={`tournament-sidebar__item${section === s.key ? ' tournament-sidebar__item--active' : ''}`}
-              onClick={() => navigate(`/tornei/${tournamentId}/${s.key}`)}
+              onClick={() =>
+                navigate(categoryId ? `/tornei/${tournamentId}/${s.key}/${categoryId}` : `/tornei/${tournamentId}/${s.key}`)
+              }
             >
               {s.label}
             </button>
