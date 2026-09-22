@@ -2,6 +2,7 @@ export type TournamentStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED';
 export type CategoryPhase = 'GIRONE' | 'TABELLONE' | 'CONCLUSA';
 export type CategoryName = 'GOLD' | 'SILVER' | 'BRONZE';
 export type MatchFormat = 'SINGLE' | 'MULTI';
+export type CompetitionFormat = 'GIRONE' | 'TABELLONE';
 export type MatchStatus = 'SCHEDULED' | 'PLAYED';
 export type MatchResultType = 'WIN_HOME' | 'WIN_HOME_TB' | 'WIN_AWAY' | 'WIN_AWAY_TB';
 
@@ -20,6 +21,7 @@ export interface CategoryResponse {
   subMatchesCount: number;
   phase: CategoryPhase;
   scheduleLocked: boolean;
+  competitionFormat: CompetitionFormat;
 }
 
 export interface PlayerResponse {
@@ -150,6 +152,7 @@ export interface CategoryRequest {
   name: CategoryName;
   matchFormat: MatchFormat;
   subMatchesCount: number | null;
+  competitionFormat: CompetitionFormat;
 }
 
 export interface TeamCreateRequest {
@@ -186,4 +189,8 @@ export interface MatchResultRequest {
 
 export interface GenerateBracketRequest {
   qualifiedCount: number;
+}
+
+export interface ManualBracketRequest {
+  slots: (number | null)[];
 }

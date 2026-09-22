@@ -9,9 +9,18 @@ import type {
   RoundResponse,
   TeamResponse,
 } from '../../api/types';
-import { categoryLabel, matchFormatLabel, matchStatusLabel, phaseLabel, teamLabel } from '../../lib/format';
+import {
+  categoryLabel,
+  competitionFormatLabel,
+  matchFormatLabel,
+  matchStatusLabel,
+  phaseLabel,
+  teamLabel,
+} from '../../lib/format';
 import { adminErrorMessage } from '../../lib/adminError';
+import { nextPowerOfTwo } from '../../lib/bracket';
 import { useAuth } from '../../auth/AuthContext';
+import Bracket from '../../components/Bracket';
 
 function TeamCard({
   team,
@@ -135,6 +144,83 @@ function TeamCard({
   );
 }
 
+function ManualBracketForm({
+  teams,
+  token,
+  categoryId,
+  onDone,
+  onCancel,
+  onUnauthorized,
+}: {
+  teams: TeamResponse[];
+  token: string | null;
+  categoryId: string | undefined;
+  onDone: () => void;
+  onCancel: () => void;
+  onUnauthorized: () => void;
+}) {
+  const bracketSize = nextPowerOfTwo(teams.length);
+  const [slots, setSlots] = useState<(number | null)[]>(() => Array(bracketSize).fill(null));
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  function updateSlot(index: number, value: string) {
+    const teamId = value === '' ? null : Number(value);
+    setSlots((prev) => prev.map((v, i) => (i === index ? teamId : v)));
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      await apiPost(`/api/admin/categories/${categoryId}/bracket/generate-manual`, { slots }, token);
+      onDone();
+    } catch (err) {
+      setError(adminErrorMessage(err, onUnauthorized));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <form className="admin-form" onSubmit={handleSubmit}>
+      <p className="admin-page__meta">
+        Assegna ogni squadra a uno slot del primo turno. Gli slot adiacenti (1-2, 3-4, ...) giocano tra loro; lascia
+        "BYE" per far passare direttamente il turno senza giocare.
+      </p>
+      <div className="manual-bracket__slots">
+        {slots.map((teamId, i) => {
+          const usedElsewhere = new Set(slots.filter((_, j) => j !== i).filter((v): v is number => v !== null));
+          const available = teams.filter((t) => t.id === teamId || !usedElsewhere.has(t.id));
+          return (
+            <label key={i} className="manual-bracket__slot">
+              Slot {i + 1}
+              <select value={teamId ?? ''} onChange={(e) => updateSlot(i, e.target.value)}>
+                <option value="">BYE</option>
+                {available.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          );
+        })}
+      </div>
+      {error && <p className="form-error">{error}</p>}
+      <div className="admin-actions">
+        <button type="submit" className="btn btn--primary" disabled={submitting}>
+          Genera tabellone
+        </button>
+        <button type="button" className="btn btn--ghost" onClick={onCancel}>
+          Annulla
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export default function CategoryPage() {
   const { categoryId } = useParams();
   const { token, logout } = useAuth();
@@ -149,6 +235,7 @@ export default function CategoryPage() {
   const [newTeamName, setNewTeamName] = useState('');
   const [newTeamPlayers, setNewTeamPlayers] = useState('');
   const [qualifiedCount, setQualifiedCount] = useState(4);
+  const [showManualForm, setShowManualForm] = useState(false);
   const [busy, setBusy] = useState(false);
 
   function onUnauthorized() {
@@ -239,6 +326,20 @@ export default function CategoryPage() {
     }
   }
 
+  async function handleGenerateRandomBracket() {
+    setError(null);
+    setBusy(true);
+    try {
+      await apiPost(`/api/admin/categories/${categoryId}/bracket/generate-random`, undefined, token);
+      setShowManualForm(false);
+      load();
+    } catch (err) {
+      setError(adminErrorMessage(err, onUnauthorized));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleResetBracket() {
     if (!confirm('Cancellare il tabellone e tornare alla fase girone?')) return;
     setError(null);
@@ -315,78 +416,30 @@ export default function CategoryPage() {
         )}
       </section>
 
-      <section className="admin-card">
-        <h3>Girone</h3>
-        <div className="admin-actions">
-          <button type="button" className="btn" disabled={busy || category.scheduleLocked || teams.length < 2} onClick={handleGenerateSchedule}>
-            {rounds.length > 0 ? 'Rigenera calendario' : 'Genera calendario'}
-          </button>
-          {(rounds.length > 0 || category.scheduleLocked) && (
-            <button type="button" className="btn btn--danger" disabled={busy} onClick={handleResetSchedule}>
-              Reset girone
+      {category.competitionFormat === 'GIRONE' && (
+        <section className="admin-card">
+          <h3>Girone</h3>
+          <div className="admin-actions">
+            <button type="button" className="btn" disabled={busy || category.scheduleLocked || teams.length < 2} onClick={handleGenerateSchedule}>
+              {rounds.length > 0 ? 'Rigenera calendario' : 'Genera calendario'}
             </button>
-          )}
-        </div>
-        {rounds.length === 0 ? (
-          <p className="page-message">Calendario non ancora generato.</p>
-        ) : (
-          <div className="rounds">
-            {rounds.map((round) => (
-              <div key={round.roundNumber} className="round-card">
-                <h4>Giornata {round.roundNumber}</h4>
-                <ul className="match-list">
-                  {round.matches.map((match) => (
-                    <li key={match.id} className="match-row">
-                      <Link to={`/admin/partite/${match.id}`} className="match-row__button">
-                        <span className="match-row__team">{teamLabel(match.homeTeamName)}</span>
-                        <span className="match-row__vs">vs</span>
-                        <span className="match-row__team">{teamLabel(match.awayTeamName)}</span>
-                        <span className={`match-row__status match-row__status--${match.status.toLowerCase()}`}>
-                          {matchStatusLabel(match.status)}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section className="admin-card">
-        <h3>Tabellone</h3>
-        {category.phase === 'GIRONE' ? (
-          <form className="admin-form" onSubmit={handleGenerateBracket}>
-            <label>
-              Squadre qualificate
-              <input
-                type="number"
-                min={2}
-                max={teams.length}
-                value={qualifiedCount}
-                onChange={(e) => setQualifiedCount(Number(e.target.value))}
-              />
-            </label>
-            <button type="submit" className="btn btn--primary" disabled={busy || teams.length < 2}>
-              Genera tabellone
-            </button>
-          </form>
-        ) : (
-          <>
-            <div className="admin-actions">
-              <button type="button" className="btn btn--danger" disabled={busy} onClick={handleResetBracket}>
-                Reset tabellone
+            {(rounds.length > 0 || category.scheduleLocked) && (
+              <button type="button" className="btn btn--danger" disabled={busy} onClick={handleResetSchedule}>
+                Reset girone
               </button>
-            </div>
-            <div className="bracket">
-              {bracket.rounds.map((round) => (
-                <div key={round.roundIndex} className="bracket-round">
-                  <h4>Turno {round.roundIndex + 1}</h4>
+            )}
+          </div>
+          {rounds.length === 0 ? (
+            <p className="page-message">Calendario non ancora generato.</p>
+          ) : (
+            <div className="rounds">
+              {rounds.map((round) => (
+                <div key={round.roundNumber} className="round-card">
+                  <h4>Giornata {round.roundNumber}</h4>
                   <ul className="match-list">
                     {round.matches.map((match) => (
-                      <li key={match.matchId} className="match-row">
-                        <Link to={`/admin/partite/${match.matchId}`} className="match-row__button">
+                      <li key={match.id} className="match-row">
+                        <Link to={`/admin/partite/${match.id}`} className="match-row__button">
                           <span className="match-row__team">{teamLabel(match.homeTeamName)}</span>
                           <span className="match-row__vs">vs</span>
                           <span className="match-row__team">{teamLabel(match.awayTeamName)}</span>
@@ -400,6 +453,72 @@ export default function CategoryPage() {
                 </div>
               ))}
             </div>
+          )}
+        </section>
+      )}
+
+      <section className="admin-card">
+        <h3>Tabellone</h3>
+        <p className="admin-page__meta">{competitionFormatLabel(category.competitionFormat)}</p>
+        {category.phase === 'GIRONE' && category.competitionFormat === 'GIRONE' && (
+          <>
+            <p className="page-message">
+              Il tabellone viene generato automaticamente, con tutte le squadre, non appena l'ultimo risultato del
+              girone viene inserito. Puoi comunque generarlo subito qui sotto, se necessario.
+            </p>
+            <form className="admin-form" onSubmit={handleGenerateBracket}>
+              <label>
+                Squadre qualificate
+                <input
+                  type="number"
+                  min={2}
+                  max={teams.length}
+                  value={qualifiedCount}
+                  onChange={(e) => setQualifiedCount(Number(e.target.value))}
+                />
+              </label>
+              <button type="submit" className="btn btn--primary" disabled={busy || teams.length < 2}>
+                Genera tabellone ora
+              </button>
+            </form>
+          </>
+        )}
+        {category.phase === 'GIRONE' && category.competitionFormat === 'TABELLONE' && (
+          showManualForm ? (
+            <ManualBracketForm
+              teams={teams}
+              token={token}
+              categoryId={categoryId}
+              onDone={() => {
+                setShowManualForm(false);
+                load();
+              }}
+              onCancel={() => setShowManualForm(false)}
+              onUnauthorized={onUnauthorized}
+            />
+          ) : (
+            <div className="admin-actions">
+              <button type="button" className="btn btn--primary" disabled={busy || teams.length < 2} onClick={handleGenerateRandomBracket}>
+                Genera casuale
+              </button>
+              <button type="button" className="btn" disabled={teams.length < 2} onClick={() => setShowManualForm(true)}>
+                Inserisci accoppiamenti manualmente
+              </button>
+            </div>
+          )
+        )}
+        {category.phase !== 'GIRONE' && bracket.totalRounds !== null && (
+          <>
+            <div className="admin-actions">
+              <button type="button" className="btn btn--danger" disabled={busy} onClick={handleResetBracket}>
+                Reset tabellone
+              </button>
+            </div>
+            <Bracket
+              rounds={bracket.rounds}
+              totalRounds={bracket.totalRounds}
+              onMatchClick={(matchId) => navigate(`/admin/partite/${matchId}`)}
+            />
           </>
         )}
       </section>

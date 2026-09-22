@@ -18,7 +18,7 @@ export default function SchedulePage() {
   const { activeCategory, redirectToId } = resolveActiveCategory(categories, categoryId);
 
   useEffect(() => {
-    if (!activeCategory) return;
+    if (!activeCategory || activeCategory.competitionFormat === 'TABELLONE') return;
     let cancelled = false;
     setRounds(null);
     setError(null);
@@ -45,7 +45,11 @@ export default function SchedulePage() {
     <div>
       <CategoryTabs categories={categories} basePath={basePath} />
 
-      {error ? (
+      {activeCategory.competitionFormat === 'TABELLONE' ? (
+        <div className="page-message">
+          Questa categoria non prevede un girone: le squadre giocano direttamente il tabellone.
+        </div>
+      ) : error ? (
         <div className="page-message page-message--error">Errore nel caricamento: {error}</div>
       ) : !rounds ? (
         <div className="page-message">Caricamento...</div>

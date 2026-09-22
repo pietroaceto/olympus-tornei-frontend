@@ -16,7 +16,7 @@ export default function StandingsPage() {
   const { activeCategory, redirectToId } = resolveActiveCategory(categories, categoryId);
 
   useEffect(() => {
-    if (!activeCategory) return;
+    if (!activeCategory || activeCategory.competitionFormat === 'TABELLONE') return;
     let cancelled = false;
     setRows(null);
     setError(null);
@@ -43,7 +43,11 @@ export default function StandingsPage() {
     <div>
       <CategoryTabs categories={categories} basePath={basePath} />
 
-      {error ? (
+      {activeCategory.competitionFormat === 'TABELLONE' ? (
+        <div className="page-message">
+          Questa categoria non prevede un girone: non c'è una classifica, guarda direttamente il tabellone.
+        </div>
+      ) : error ? (
         <div className="page-message page-message--error">Errore nel caricamento: {error}</div>
       ) : !rows ? (
         <div className="page-message">Caricamento...</div>

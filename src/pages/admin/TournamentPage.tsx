@@ -2,8 +2,22 @@ import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { apiDelete, apiGet, apiPost } from '../../api/client';
-import type { CategoryName, CategoryRequest, CategoryResponse, MatchFormat, TournamentResponse } from '../../api/types';
-import { categoryLabel, matchFormatLabel, phaseLabel, sortCategories, tournamentStatusLabel } from '../../lib/format';
+import type {
+  CategoryName,
+  CategoryRequest,
+  CategoryResponse,
+  CompetitionFormat,
+  MatchFormat,
+  TournamentResponse,
+} from '../../api/types';
+import {
+  categoryLabel,
+  competitionFormatLabel,
+  matchFormatLabel,
+  phaseLabel,
+  sortCategories,
+  tournamentStatusLabel,
+} from '../../lib/format';
 import { adminErrorMessage } from '../../lib/adminError';
 import { useAuth } from '../../auth/AuthContext';
 
@@ -19,6 +33,7 @@ export default function TournamentPage() {
   const [name, setName] = useState<CategoryName>('GOLD');
   const [matchFormat, setMatchFormat] = useState<MatchFormat>('SINGLE');
   const [subMatchesCount, setSubMatchesCount] = useState(2);
+  const [competitionFormat, setCompetitionFormat] = useState<CompetitionFormat>('GIRONE');
   const [submitting, setSubmitting] = useState(false);
 
   function onUnauthorized() {
@@ -52,6 +67,7 @@ export default function TournamentPage() {
         name,
         matchFormat,
         subMatchesCount: matchFormat === 'MULTI' ? subMatchesCount : null,
+        competitionFormat,
       };
       await apiPost(`/api/admin/tournaments/${tournamentId}/categories`, body, token);
       load();
@@ -102,7 +118,8 @@ export default function TournamentPage() {
                 {categoryLabel(cat.name)}
               </Link>
               <span className="admin-list__meta">
-                {matchFormatLabel(cat.matchFormat)} · {phaseLabel(cat.phase)}
+                {competitionFormatLabel(cat.competitionFormat)} · {matchFormatLabel(cat.matchFormat)} ·{' '}
+                {phaseLabel(cat.phase)}
               </span>
               <button
                 type="button"
@@ -130,6 +147,16 @@ export default function TournamentPage() {
                     {categoryLabel(n)}
                   </option>
                 ))}
+              </select>
+            </label>
+            <label>
+              Formato competizione
+              <select
+                value={competitionFormat}
+                onChange={(e) => setCompetitionFormat(e.target.value as CompetitionFormat)}
+              >
+                <option value="GIRONE">Girone (tabellone finale automatico)</option>
+                <option value="TABELLONE">Tabellone diretto (nessun girone)</option>
               </select>
             </label>
             <label>

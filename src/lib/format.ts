@@ -74,3 +74,7 @@ export function tournamentStatusLabel(status: string): string {
 export function matchFormatLabel(format: string): string {
   return format === 'SINGLE' ? 'Partita singola' : 'A squadre (più sotto-partite)';
 }
+
+export function competitionFormatLabel(format: string): string {
+  return format === 'TABELLONE' ? 'Tabellone diretto' : 'Girone';
+}

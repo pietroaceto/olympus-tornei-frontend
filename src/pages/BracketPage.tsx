@@ -2,20 +2,12 @@ import { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import { apiGet } from '../api/client';
 import type { BracketResponse } from '../api/types';
-import { matchStatusLabel, teamLabel } from '../lib/format';
 import { resolveActiveCategory } from '../lib/categorySelection';
 import type { TournamentOutletContext } from '../components/TournamentShell';
 import CategoryTabs from '../components/CategoryTabs';
+import Bracket from '../components/Bracket';
 
 const POLL_INTERVAL_MS = 15_000;
-
-function roundName(roundIndex: number, totalRounds: number): string {
-  const roundsFromEnd = totalRounds - roundIndex;
-  if (roundsFromEnd === 1) return 'Finale';
-  if (roundsFromEnd === 2) return 'Semifinale';
-  if (roundsFromEnd === 3) return 'Quarti di finale';
-  return `Turno ${roundIndex + 1}`;
-}
 
 export default function BracketPage() {
   const { tournament, categories } = useOutletContext<TournamentOutletContext>();
@@ -69,40 +61,12 @@ export default function BracketPage() {
       ) : bracket.rounds.length === 0 || bracket.totalRounds === null ? (
         <div className="page-message">Il tabellone non è ancora stato generato.</div>
       ) : (
-        <div className="bracket">
-          {bracket.rounds.map((round) => (
-            <section key={round.roundIndex} className="bracket-round">
-              <h2>{roundName(round.roundIndex, bracket.totalRounds ?? 0)}</h2>
-              <ul className="match-list">
-                {round.matches.map((match) => (
-                  <li key={match.matchId} className="match-row">
-                    <button
-                      type="button"
-                      className="match-row__button"
-                      disabled={match.status !== 'PLAYED'}
-                      onClick={() => navigate(`/tornei/${tournament.id}/partita/${match.matchId}`)}
-                    >
-                      <span
-                        className={`match-row__team${match.winnerTeamId === match.homeTeamId ? ' match-row__team--winner' : ''}`}
-                      >
-                        {teamLabel(match.homeTeamName)}
-                      </span>
-                      <span className="match-row__vs">vs</span>
-                      <span
-                        className={`match-row__team${match.winnerTeamId === match.awayTeamId ? ' match-row__team--winner' : ''}`}
-                      >
-                        {teamLabel(match.awayTeamName)}
-                      </span>
-                      <span className={`match-row__status match-row__status--${match.status.toLowerCase()}`}>
-                        {matchStatusLabel(match.status)}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </div>
+        <Bracket
+          rounds={bracket.rounds}
+          totalRounds={bracket.totalRounds}
+          onMatchClick={(matchId) => navigate(`/tornei/${tournament.id}/partita/${matchId}`)}
+          isMatchClickable={(match) => match.status === 'PLAYED'}
+        />
       )}
     </div>
   );
