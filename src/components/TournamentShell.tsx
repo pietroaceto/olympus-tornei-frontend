@@ -3,6 +3,15 @@ import { Link, Outlet, useLocation, useNavigate, useParams } from 'react-router-
 import { apiGet } from '../api/client';
 import type { CategoryResponse, TournamentResponse } from '../api/types';
 import { sortCategories, tournamentStatusLabel } from '../lib/format';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select';
+import { Badge } from './ui/badge';
+import { cn } from '@/lib/utils';
 
 export interface TournamentOutletContext {
   tournament: TournamentResponse;
@@ -67,45 +76,52 @@ export default function TournamentShell() {
   }, [tournamentId]);
 
   if (error) {
-    return <div className="page-message page-message--error">Errore nel caricamento: {error}</div>;
+    return <div className="py-12 text-center text-destructive">Errore nel caricamento: {error}</div>;
   }
   if (!tournament || !allTournaments || !categories) {
-    return <div className="page-message">Caricamento...</div>;
+    return <div className="py-12 text-center text-muted-foreground">Caricamento...</div>;
   }
 
   const section = currentSection(location.pathname);
   const categoryId = currentCategoryId(location.pathname, tournamentId, section);
 
   return (
-    <div className="tournament-shell">
-      <header className="tournament-header">
-        <Link to="/" className="tournament-header__brand">
+    <div className="mx-auto flex min-h-svh max-w-5xl flex-col">
+      <header className="flex flex-wrap items-center gap-5 border-b px-4 py-5">
+        <Link to="/" className="font-heading text-lg font-bold whitespace-nowrap">
           Olympus Tornei
         </Link>
-        <div className="tournament-header__current">
-          <select
-            className="tournament-switcher"
-            value={tournament.id}
-            onChange={(e) => navigate(`/tornei/${e.target.value}/${section}`)}
+        <div className="ml-auto flex items-center gap-3">
+          <Select
+            value={String(tournament.id)}
+            onValueChange={(value) => navigate(`/tornei/${value}/${section}`)}
           >
-            {allTournaments.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-                {t.season ? ` (${t.season})` : ''}
-              </option>
-            ))}
-          </select>
-          <span className="tournament-header__status">{tournamentStatusLabel(tournament.status)}</span>
+            <SelectTrigger className="max-w-70">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {allTournaments.map((t) => (
+                <SelectItem key={t.id} value={String(t.id)}>
+                  {t.name}
+                  {t.season ? ` (${t.season})` : ''}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Badge variant="secondary">{tournamentStatusLabel(tournament.status)}</Badge>
         </div>
       </header>
 
-      <div className="tournament-body">
-        <nav className="tournament-sidebar">
+      <div className="flex flex-1 flex-col gap-6 px-4 py-6 sm:flex-row">
+        <nav className="flex gap-2 overflow-x-auto sm:w-40 sm:shrink-0 sm:flex-col sm:gap-1">
           {SECTIONS.map((s) => (
             <button
               key={s.key}
               type="button"
-              className={`tournament-sidebar__item${section === s.key ? ' tournament-sidebar__item--active' : ''}`}
+              className={cn(
+                'shrink-0 rounded-lg px-3.5 py-2.5 text-left font-medium whitespace-nowrap text-muted-foreground hover:bg-muted',
+                section === s.key && 'bg-primary/10 font-semibold text-primary hover:bg-primary/10',
+              )}
               onClick={() =>
                 navigate(categoryId ? `/tornei/${tournamentId}/${s.key}/${categoryId}` : `/tornei/${tournamentId}/${s.key}`)
               }
@@ -115,7 +131,7 @@ export default function TournamentShell() {
           ))}
         </nav>
 
-        <main className="tournament-content">
+        <main className="min-w-0 flex-1">
           <Outlet context={{ tournament, categories } satisfies TournamentOutletContext} />
         </main>
       </div>

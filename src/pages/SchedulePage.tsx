@@ -6,6 +6,7 @@ import { matchStatusLabel, teamLabel } from '../lib/format';
 import { resolveActiveCategory } from '../lib/categorySelection';
 import type { TournamentOutletContext } from '../components/TournamentShell';
 import CategoryTabs from '../components/CategoryTabs';
+import { Badge } from '../components/ui/badge';
 
 export default function SchedulePage() {
   const { tournament, categories } = useOutletContext<TournamentOutletContext>();
@@ -38,7 +39,7 @@ export default function SchedulePage() {
     return <Navigate to={`${basePath}/${redirectToId}`} replace />;
   }
   if (!activeCategory) {
-    return <div className="page-message">Nessuna categoria per questo torneo.</div>;
+    return <div className="py-12 text-center text-muted-foreground">Nessuna categoria per questo torneo.</div>;
   }
 
   return (
@@ -46,35 +47,37 @@ export default function SchedulePage() {
       <CategoryTabs categories={categories} basePath={basePath} />
 
       {activeCategory.competitionFormat === 'TABELLONE' ? (
-        <div className="page-message">
+        <div className="py-12 text-center text-muted-foreground">
           Questa categoria non prevede un girone: le squadre giocano direttamente il tabellone.
         </div>
       ) : error ? (
-        <div className="page-message page-message--error">Errore nel caricamento: {error}</div>
+        <div className="py-12 text-center text-destructive">Errore nel caricamento: {error}</div>
       ) : !rounds ? (
-        <div className="page-message">Caricamento...</div>
+        <div className="py-12 text-center text-muted-foreground">Caricamento...</div>
       ) : rounds.length === 0 ? (
-        <div className="page-message">Il calendario del girone non è ancora stato generato.</div>
+        <div className="py-12 text-center text-muted-foreground">Il calendario del girone non è ancora stato generato.</div>
       ) : (
-        <div className="rounds">
+        <div className="flex flex-col gap-6">
           {rounds.map((round) => (
-            <section key={round.roundNumber} className="round-card">
-              <h2>Giornata {round.roundNumber}</h2>
-              <ul className="match-list">
+            <section key={round.roundNumber}>
+              <h2 className="mb-2 text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+                Giornata {round.roundNumber}
+              </h2>
+              <ul className="flex flex-col gap-2">
                 {round.matches.map((match) => (
-                  <li key={match.id} className="match-row">
+                  <li key={match.id}>
                     <button
                       type="button"
-                      className="match-row__button"
+                      className="grid w-full grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-xl border bg-card px-4 py-3 text-left text-card-foreground disabled:cursor-default disabled:opacity-75"
                       disabled={match.status !== 'PLAYED'}
                       onClick={() => navigate(`/tornei/${tournament.id}/partita/${match.id}`)}
                     >
-                      <span className="match-row__team">{teamLabel(match.homeTeamName)}</span>
-                      <span className="match-row__vs">vs</span>
-                      <span className="match-row__team">{teamLabel(match.awayTeamName)}</span>
-                      <span className={`match-row__status match-row__status--${match.status.toLowerCase()}`}>
+                      <span className="truncate">{teamLabel(match.homeTeamName)}</span>
+                      <span className="text-center text-sm text-muted-foreground">vs</span>
+                      <span className="truncate">{teamLabel(match.awayTeamName)}</span>
+                      <Badge variant={match.status === 'PLAYED' ? 'default' : 'outline'}>
                         {matchStatusLabel(match.status)}
-                      </span>
+                      </Badge>
                     </button>
                   </li>
                 ))}

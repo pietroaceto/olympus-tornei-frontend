@@ -47,7 +47,7 @@ export default function BracketPage() {
     return <Navigate to={`${basePath}/${redirectToId}`} replace />;
   }
   if (!activeCategory) {
-    return <div className="page-message">Nessuna categoria per questo torneo.</div>;
+    return <div className="py-12 text-center text-muted-foreground">Nessuna categoria per questo torneo.</div>;
   }
 
   return (
@@ -55,11 +55,11 @@ export default function BracketPage() {
       <CategoryTabs categories={categories} basePath={basePath} />
 
       {error ? (
-        <div className="page-message page-message--error">Errore nel caricamento: {error}</div>
+        <div className="py-12 text-center text-destructive">Errore nel caricamento: {error}</div>
       ) : !bracket ? (
-        <div className="page-message">Caricamento...</div>
+        <div className="py-12 text-center text-muted-foreground">Caricamento...</div>
       ) : bracket.rounds.length === 0 || bracket.totalRounds === null ? (
-        <div className="page-message">Il tabellone non è ancora stato generato.</div>
+        <div className="py-12 text-center text-muted-foreground">Il tabellone non è ancora stato generato.</div>
       ) : (
         <Bracket
           rounds={bracket.rounds}

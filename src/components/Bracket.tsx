@@ -1,5 +1,6 @@
 import type { BracketRoundResponse } from '../api/types';
 import { teamLabel } from '../lib/format';
+import { cn } from '@/lib/utils';
 
 function roundName(roundIndex: number, totalRounds: number): string {
   const roundsFromEnd = totalRounds - roundIndex;
@@ -22,36 +23,48 @@ export default function Bracket({
   isMatchClickable?: (match: BracketRoundResponse['matches'][number]) => boolean;
 }) {
   return (
-    <div className="bracket">
-      {rounds.map((round) => (
-        <div key={round.roundIndex} className="bracket-round">
-          <div className="bracket-round__header">
-            <h2>{roundName(round.roundIndex, totalRounds)}</h2>
-            <span className="bracket-round__count">
+    <div className="flex items-stretch gap-10 overflow-x-auto p-2 pb-4">
+      {rounds.map((round, roundPos) => (
+        <div key={round.roundIndex} className="flex w-48 shrink-0 flex-col">
+          <div className="mb-4 text-center">
+            <h2 className="text-xs font-semibold tracking-wide text-foreground uppercase">
+              {roundName(round.roundIndex, totalRounds)}
+            </h2>
+            <span className="text-xs text-muted-foreground">
               {round.matches.length} {round.matches.length === 1 ? 'incontro' : 'incontri'}
             </span>
           </div>
-          <div className="bracket-round__matches">
+          <div className="flex flex-1 flex-col justify-around gap-5">
             {round.matches.map((match) => (
               <button
                 key={match.matchId}
                 type="button"
-                className="bracket-match"
+                className={cn(
+                  'relative flex w-full flex-col overflow-hidden rounded-lg border bg-card text-left disabled:cursor-default',
+                  roundPos < rounds.length - 1 &&
+                    "after:absolute after:top-1/2 after:right-[-21px] after:h-px after:w-5 after:bg-border after:content-['']",
+                  roundPos > 0 &&
+                    "before:absolute before:top-1/2 before:left-[-21px] before:h-px before:w-5 before:bg-border before:content-['']",
+                )}
                 disabled={isMatchClickable ? !isMatchClickable(match) : false}
                 onClick={() => onMatchClick(match.matchId)}
               >
                 <span
-                  className={`bracket-match__team${
-                    match.homeTeamName === null ? ' bracket-match__team--tbd' : ''
-                  }${match.winnerTeamId !== null && match.winnerTeamId === match.homeTeamId ? ' bracket-match__team--winner' : ''}`}
+                  className={cn(
+                    'truncate px-3 py-2 text-sm',
+                    match.homeTeamName === null && 'text-muted-foreground italic',
+                    match.winnerTeamId !== null && match.winnerTeamId === match.homeTeamId && 'font-bold text-primary',
+                  )}
                 >
                   {teamLabel(match.homeTeamName)}
                 </span>
-                <span className="bracket-match__divider" />
+                <span className="h-px bg-border" />
                 <span
-                  className={`bracket-match__team${
-                    match.awayTeamName === null ? ' bracket-match__team--tbd' : ''
-                  }${match.winnerTeamId !== null && match.winnerTeamId === match.awayTeamId ? ' bracket-match__team--winner' : ''}`}
+                  className={cn(
+                    'truncate px-3 py-2 text-sm',
+                    match.awayTeamName === null && 'text-muted-foreground italic',
+                    match.winnerTeamId !== null && match.winnerTeamId === match.awayTeamId && 'font-bold text-primary',
+                  )}
                 >
                   {teamLabel(match.awayTeamName)}
                 </span>

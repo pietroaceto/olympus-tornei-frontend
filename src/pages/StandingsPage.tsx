@@ -5,6 +5,7 @@ import type { StandingRowResponse } from '../api/types';
 import { resolveActiveCategory } from '../lib/categorySelection';
 import type { TournamentOutletContext } from '../components/TournamentShell';
 import CategoryTabs from '../components/CategoryTabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 
 export default function StandingsPage() {
   const { tournament, categories } = useOutletContext<TournamentOutletContext>();
@@ -36,7 +37,7 @@ export default function StandingsPage() {
     return <Navigate to={`${basePath}/${redirectToId}`} replace />;
   }
   if (!activeCategory) {
-    return <div className="page-message">Nessuna categoria per questo torneo.</div>;
+    return <div className="py-12 text-center text-muted-foreground">Nessuna categoria per questo torneo.</div>;
   }
 
   return (
@@ -44,44 +45,44 @@ export default function StandingsPage() {
       <CategoryTabs categories={categories} basePath={basePath} />
 
       {activeCategory.competitionFormat === 'TABELLONE' ? (
-        <div className="page-message">
+        <div className="py-12 text-center text-muted-foreground">
           Questa categoria non prevede un girone: non c'è una classifica, guarda direttamente il tabellone.
         </div>
       ) : error ? (
-        <div className="page-message page-message--error">Errore nel caricamento: {error}</div>
+        <div className="py-12 text-center text-destructive">Errore nel caricamento: {error}</div>
       ) : !rows ? (
-        <div className="page-message">Caricamento...</div>
+        <div className="py-12 text-center text-muted-foreground">Caricamento...</div>
       ) : rows.length === 0 ? (
-        <div className="page-message">Nessuna squadra in questa categoria.</div>
+        <div className="py-12 text-center text-muted-foreground">Nessuna squadra in questa categoria.</div>
       ) : (
-        <table className="standings-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Squadra</th>
-              <th>G</th>
-              <th>V</th>
-              <th>P</th>
-              <th>Pt</th>
-              <th>Diff. set</th>
-              <th>Diff. game</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-center">#</TableHead>
+              <TableHead>Squadra</TableHead>
+              <TableHead className="text-center">G</TableHead>
+              <TableHead className="text-center">V</TableHead>
+              <TableHead className="text-center">P</TableHead>
+              <TableHead className="text-center">Pt</TableHead>
+              <TableHead className="text-center">Diff. set</TableHead>
+              <TableHead className="text-center">Diff. game</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {rows.map((row) => (
-              <tr key={row.teamId}>
-                <td>{row.position}</td>
-                <td className="standings-table__team">{row.teamName}</td>
-                <td>{row.played}</td>
-                <td>{row.won}</td>
-                <td>{row.lost}</td>
-                <td className="standings-table__points">{row.points}</td>
-                <td>{row.setDiff > 0 ? `+${row.setDiff}` : row.setDiff}</td>
-                <td>{row.gameDiff > 0 ? `+${row.gameDiff}` : row.gameDiff}</td>
-              </tr>
+              <TableRow key={row.teamId}>
+                <TableCell className="text-center">{row.position}</TableCell>
+                <TableCell className="font-medium">{row.teamName}</TableCell>
+                <TableCell className="text-center">{row.played}</TableCell>
+                <TableCell className="text-center">{row.won}</TableCell>
+                <TableCell className="text-center">{row.lost}</TableCell>
+                <TableCell className="text-center font-bold text-primary">{row.points}</TableCell>
+                <TableCell className="text-center">{row.setDiff > 0 ? `+${row.setDiff}` : row.setDiff}</TableCell>
+                <TableCell className="text-center">{row.gameDiff > 0 ? `+${row.gameDiff}` : row.gameDiff}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       )}
     </div>
   );

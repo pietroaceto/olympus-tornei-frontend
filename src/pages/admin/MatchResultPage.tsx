@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { apiGet, apiPost } from '../../api/client';
 import type {
   CategoryResponse,
@@ -15,6 +16,8 @@ import { resultTypeLabel, teamLabel } from '../../lib/format';
 import { adminErrorMessage } from '../../lib/adminError';
 import { activeSets, determineSingleResult, emptySets, padSets } from '../../lib/setScoring';
 import { useAuth } from '../../auth/AuthContext';
+import { Button } from '../../components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface SubMatchForm {
   homePlayer1Id: number | '';
@@ -39,6 +42,11 @@ function emptySubMatch(): SubMatchForm {
   };
 }
 
+const playerSelectClass =
+  'border-none bg-transparent p-0 text-xs font-medium text-muted-foreground uppercase outline-none';
+const scoreInputClass =
+  'w-8 border-none bg-transparent p-0 text-center text-2xl font-bold text-foreground outline-none';
+
 export default function MatchResultPage() {
   const { matchId } = useParams();
   const { token, logout } = useAuth();
@@ -48,13 +56,11 @@ export default function MatchResultPage() {
   const [category, setCategory] = useState<CategoryResponse | null>(null);
   const [homeTeam, setHomeTeam] = useState<TeamResponse | null>(null);
   const [awayTeam, setAwayTeam] = useState<TeamResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const [subMatches, setSubMatches] = useState<SubMatchForm[]>([]);
   const [resultType, setResultType] = useState<MatchResultType>('WIN_HOME');
   const [submitting, setSubmitting] = useState(false);
-  const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
   function onUnauthorized() {
     logout();
@@ -115,8 +121,6 @@ export default function MatchResultPage() {
 
   function handleResetResult() {
     if (!category) return;
-    setError(null);
-    setSavedMessage(null);
     setSubMatches(Array.from({ length: category.subMatchesCount }, emptySubMatch));
     setResultType('WIN_HOME');
   }
@@ -126,8 +130,6 @@ export default function MatchResultPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError(null);
-    setSavedMessage(null);
 
     const parsed: SubMatchRequest[] = [];
     let finalResultType: MatchResultType;
@@ -135,12 +137,12 @@ export default function MatchResultPage() {
     if (isSingle) {
       const sm = subMatches[0];
       if (sm.homePlayer1Id === '' || sm.homePlayer2Id === '' || sm.awayPlayer1Id === '' || sm.awayPlayer2Id === '') {
-        setError('Seleziona tutti i giocatori.');
+        toast.error('Seleziona tutti i giocatori.');
         return;
       }
       const determined = determineSingleResult(sm.sets);
       if (!determined.resultType) {
-        setError(determined.error ?? 'Risultato non valido.');
+        toast.error(determined.error ?? 'Risultato non valido.');
         return;
       }
       finalResultType = determined.resultType;
@@ -155,12 +157,12 @@ export default function MatchResultPage() {
       finalResultType = resultType;
       for (const sm of subMatches) {
         if (sm.homePlayer1Id === '' || sm.homePlayer2Id === '' || sm.awayPlayer1Id === '' || sm.awayPlayer2Id === '') {
-          setError('Seleziona tutti i giocatori per ogni sotto-partita.');
+          toast.error('Seleziona tutti i giocatori per ogni sotto-partita.');
           return;
         }
         const active = activeSets(sm.sets);
         if (active.length === 0) {
-          setError('Inserisci almeno un set per ogni sotto-partita.');
+          toast.error('Inserisci almeno un set per ogni sotto-partita.');
           return;
         }
         parsed.push({
@@ -178,28 +180,28 @@ export default function MatchResultPage() {
       const body: MatchResultRequest = { subMatches: parsed, resultType: finalResultType };
       const updated = await apiPost<MatchDetailResponse>(`/api/admin/matches/${matchId}/result`, body, token);
       setMatch(updated);
-      setSavedMessage('Risultato salvato.');
+      toast.success('Risultato salvato.');
     } catch (err) {
-      setError(adminErrorMessage(err, onUnauthorized));
+      toast.error(adminErrorMessage(err, onUnauthorized));
     } finally {
       setSubmitting(false);
     }
   }
 
   if (loadError) {
-    return <div className="page-message page-message--error">Errore: {loadError}</div>;
+    return <div className="py-12 text-center text-destructive">Errore: {loadError}</div>;
   }
   if (!match || !category) {
-    return <div className="page-message">Caricamento...</div>;
+    return <div className="py-12 text-center text-muted-foreground">Caricamento...</div>;
   }
 
   if (match.homeTeamId === null || match.awayTeamId === null || !homeTeam || !awayTeam) {
     return (
-      <div className="admin-page">
-        <button type="button" className="link-button" onClick={() => navigate(-1)}>
+      <div className="flex flex-col gap-4">
+        <Button type="button" variant="link" className="h-auto self-start px-0" onClick={() => navigate(-1)}>
           ← Torna indietro
-        </button>
-        <p className="page-message">
+        </Button>
+        <p className="py-12 text-center text-muted-foreground">
           Questo match del tabellone non è ancora giocabile: una delle due squadre non è stata determinata
           (in attesa del risultato di un turno precedente).
         </p>
@@ -208,30 +210,33 @@ export default function MatchResultPage() {
   }
 
   return (
-    <div className="admin-page">
-      <button type="button" className="link-button" onClick={() => navigate(-1)}>
+    <div className="flex flex-col gap-4">
+      <Button type="button" variant="link" className="h-auto self-start px-0" onClick={() => navigate(-1)}>
         ← Torna indietro
-      </button>
-      <h2>
-        {teamLabel(match.homeTeamName)} <span className="match-row__vs">vs</span> {teamLabel(match.awayTeamName)}
+      </Button>
+      <h2 className="text-center text-xl font-semibold">
+        {teamLabel(match.homeTeamName)} <span className="text-sm text-muted-foreground">vs</span>{' '}
+        {teamLabel(match.awayTeamName)}
       </h2>
       {match.status === 'PLAYED' && (
-        <p className="admin-page__meta">Risultato attuale: {resultTypeLabel(match.resultType)}</p>
+        <p className="text-center text-muted-foreground">Risultato attuale: {resultTypeLabel(match.resultType)}</p>
       )}
 
-      {error && <p className="form-error">{error}</p>}
-      {savedMessage && <p className="form-success">{savedMessage}</p>}
-
-      <form className="result-form" onSubmit={handleSubmit}>
+      <form className="flex flex-col items-start gap-4" onSubmit={handleSubmit}>
         {subMatches.map((sm, subIndex) => (
-          <div key={subIndex} className="match-card">
-            {!isSingle && <div className="match-card__title">Sotto-partita {subIndex + 1}</div>}
-            <div className="match-card__box">
-              <div className="match-card__row">
-                <div className="match-card__team-info">
-                  <span className="match-card__team-name">{match.homeTeamName}</span>
-                  <div className="match-card__players">
+          <div key={subIndex} className="flex w-full flex-col gap-2.5">
+            {!isSingle && (
+              <div className="text-xs font-bold tracking-wide text-muted-foreground uppercase">
+                Sotto-partita {subIndex + 1}
+              </div>
+            )}
+            <div className="overflow-hidden rounded-2xl border bg-card text-card-foreground">
+              <div className="flex flex-wrap items-center justify-between gap-4 px-4.5 py-3.5">
+                <div className="flex min-w-0 items-center gap-4">
+                  <span className="truncate text-sm font-bold uppercase">{match.homeTeamName}</span>
+                  <div className="flex flex-col gap-0.5">
                     <select
+                      className={playerSelectClass}
                       value={sm.homePlayer1Id}
                       onChange={(e) => updateSubMatch(subIndex, { homePlayer1Id: Number(e.target.value) })}
                       required
@@ -246,6 +251,7 @@ export default function MatchResultPage() {
                       ))}
                     </select>
                     <select
+                      className={playerSelectClass}
                       value={sm.homePlayer2Id}
                       onChange={(e) => updateSubMatch(subIndex, { homePlayer2Id: Number(e.target.value) })}
                       required
@@ -261,30 +267,29 @@ export default function MatchResultPage() {
                     </select>
                   </div>
                 </div>
-                <div className="match-card__scores">
+                <div className="flex shrink-0 gap-5">
                   {sm.sets.map((set, setIndex) => (
                     <input
                       key={setIndex}
-                      className="match-card__score-input"
+                      className={scoreInputClass}
                       type="text"
                       inputMode="numeric"
                       pattern="[0-9]*"
                       value={set.homeGames}
-                      onChange={(e) =>
-                        updateSet(subIndex, setIndex, { homeGames: sanitizeGames(e.target.value) })
-                      }
+                      onChange={(e) => updateSet(subIndex, setIndex, { homeGames: sanitizeGames(e.target.value) })}
                     />
                   ))}
                 </div>
               </div>
 
-              <div className="match-card__divider" />
+              <div className="h-px bg-border" />
 
-              <div className="match-card__row">
-                <div className="match-card__team-info">
-                  <span className="match-card__team-name">{match.awayTeamName}</span>
-                  <div className="match-card__players">
+              <div className="flex flex-wrap items-center justify-between gap-4 px-4.5 py-3.5">
+                <div className="flex min-w-0 items-center gap-4">
+                  <span className="truncate text-sm font-bold uppercase">{match.awayTeamName}</span>
+                  <div className="flex flex-col gap-0.5">
                     <select
+                      className={playerSelectClass}
                       value={sm.awayPlayer1Id}
                       onChange={(e) => updateSubMatch(subIndex, { awayPlayer1Id: Number(e.target.value) })}
                       required
@@ -299,6 +304,7 @@ export default function MatchResultPage() {
                       ))}
                     </select>
                     <select
+                      className={playerSelectClass}
                       value={sm.awayPlayer2Id}
                       onChange={(e) => updateSubMatch(subIndex, { awayPlayer2Id: Number(e.target.value) })}
                       required
@@ -314,18 +320,16 @@ export default function MatchResultPage() {
                     </select>
                   </div>
                 </div>
-                <div className="match-card__scores">
+                <div className="flex shrink-0 gap-5">
                   {sm.sets.map((set, setIndex) => (
                     <input
                       key={setIndex}
-                      className="match-card__score-input"
+                      className={scoreInputClass}
                       type="text"
                       inputMode="numeric"
                       pattern="[0-9]*"
                       value={set.awayGames}
-                      onChange={(e) =>
-                        updateSet(subIndex, setIndex, { awayGames: sanitizeGames(e.target.value) })
-                      }
+                      onChange={(e) => updateSet(subIndex, setIndex, { awayGames: sanitizeGames(e.target.value) })}
                     />
                   ))}
                 </div>
@@ -335,7 +339,7 @@ export default function MatchResultPage() {
         ))}
 
         {isSingle ? (
-          <p className={singleResult?.resultType ? 'form-success' : 'admin-page__meta'}>
+          <p className={cn('text-sm', singleResult?.resultType ? 'font-medium text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground')}>
             {singleResult?.resultType
               ? `Esito: ${resultTypeLabel(singleResult.resultType)} (${
                   singleResult.resultType === 'WIN_HOME' || singleResult.resultType === 'WIN_AWAY' ? '3' : '2'
@@ -343,65 +347,72 @@ export default function MatchResultPage() {
               : (singleResult?.error ?? 'Inserisci i punteggi dei set.')}
           </p>
         ) : (
-          <fieldset className="admin-card">
-            <legend>Esito finale</legend>
-            <label>
-              <input
-                type="radio"
-                name="resultType"
-                checked={resultType === 'WIN_HOME'}
-                onChange={() => setResultType('WIN_HOME')}
-              />
-              Vittoria {match.homeTeamName}
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="resultType"
-                checked={resultType === 'WIN_HOME_TB'}
-                onChange={() => setResultType('WIN_HOME_TB')}
-              />
-              Vittoria {match.homeTeamName} al tie-break
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="resultType"
-                checked={resultType === 'WIN_AWAY'}
-                onChange={() => setResultType('WIN_AWAY')}
-              />
-              Vittoria {match.awayTeamName}
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="resultType"
-                checked={resultType === 'WIN_AWAY_TB'}
-                onChange={() => setResultType('WIN_AWAY_TB')}
-              />
-              Vittoria {match.awayTeamName} al tie-break
-            </label>
+          <fieldset className="w-full rounded-xl border bg-card p-4 text-card-foreground">
+            <legend className="px-1 text-sm font-medium">Esito finale</legend>
+            <div className="flex flex-col gap-2">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="resultType"
+                  className="accent-primary"
+                  checked={resultType === 'WIN_HOME'}
+                  onChange={() => setResultType('WIN_HOME')}
+                />
+                Vittoria {match.homeTeamName}
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="resultType"
+                  className="accent-primary"
+                  checked={resultType === 'WIN_HOME_TB'}
+                  onChange={() => setResultType('WIN_HOME_TB')}
+                />
+                Vittoria {match.homeTeamName} al tie-break
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="resultType"
+                  className="accent-primary"
+                  checked={resultType === 'WIN_AWAY'}
+                  onChange={() => setResultType('WIN_AWAY')}
+                />
+                Vittoria {match.awayTeamName}
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="resultType"
+                  className="accent-primary"
+                  checked={resultType === 'WIN_AWAY_TB'}
+                  onChange={() => setResultType('WIN_AWAY_TB')}
+                />
+                Vittoria {match.awayTeamName} al tie-break
+              </label>
+            </div>
           </fieldset>
         )}
 
-        <div className="admin-actions">
-          <button type="submit" className="btn btn--primary" disabled={submitting}>
+        <div className="flex gap-2">
+          <Button type="submit" disabled={submitting}>
             {match.status === 'PLAYED' ? 'Aggiorna risultato' : 'Salva risultato'}
-          </button>
-          <button type="button" className="btn btn--danger" disabled={submitting} onClick={handleResetResult}>
+          </Button>
+          <Button type="button" variant="destructive" disabled={submitting} onClick={handleResetResult}>
             Reset risultato
-          </button>
+          </Button>
         </div>
       </form>
 
       {match.suggestedWinner && (
-        <p className="admin-page__meta">
-          Esito suggerito dal conteggio sotto-partite: {match.suggestedWinner === 'PARITA' ? 'Parità' : match.suggestedWinner === 'HOME' ? match.homeTeamName : match.awayTeamName}
+        <p className="text-sm text-muted-foreground">
+          Esito suggerito dal conteggio sotto-partite:{' '}
+          {match.suggestedWinner === 'PARITA' ? 'Parità' : match.suggestedWinner === 'HOME' ? match.homeTeamName : match.awayTeamName}
         </p>
       )}
-      <Link to={`/admin/categorie/${category.id}`} className="link-button">
-        ← Torna alla categoria
-      </Link>
+      <Button variant="link" className="h-auto self-start px-0" asChild>
+        <Link to={`/admin/categorie/${category.id}`}>← Torna alla categoria</Link>
+      </Button>
     </div>
   );
 }

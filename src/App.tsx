@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Toaster } from './components/ui/sonner';
 import { AuthProvider } from './auth/AuthContext';
 import TournamentShell from './components/TournamentShell';
 import AdminLayout from './components/AdminLayout';
@@ -39,6 +40,7 @@ export default function App() {
             <Route path="utenti" element={<UsersPage />} />
           </Route>
         </Routes>
+        <Toaster position="top-center" />
       </AuthProvider>
     </BrowserRouter>
   );

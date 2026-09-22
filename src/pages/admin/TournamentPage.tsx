@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { apiDelete, apiGet, apiPost } from '../../api/client';
 import type {
   CategoryName,
@@ -20,6 +21,12 @@ import {
 } from '../../lib/format';
 import { adminErrorMessage } from '../../lib/adminError';
 import { useAuth } from '../../auth/AuthContext';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 
 export default function TournamentPage() {
   const { tournamentId } = useParams();
@@ -28,13 +35,14 @@ export default function TournamentPage() {
 
   const [tournament, setTournament] = useState<TournamentResponse | null>(null);
   const [categories, setCategories] = useState<CategoryResponse[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const [name, setName] = useState<CategoryName>('GOLD');
   const [matchFormat, setMatchFormat] = useState<MatchFormat>('SINGLE');
   const [subMatchesCount, setSubMatchesCount] = useState(2);
   const [competitionFormat, setCompetitionFormat] = useState<CompetitionFormat>('GIRONE');
   const [submitting, setSubmitting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<CategoryResponse | null>(null);
 
   function onUnauthorized() {
     logout();
@@ -50,7 +58,7 @@ export default function TournamentPage() {
         setTournament(t);
         setCategories(sortCategories(cats));
       })
-      .catch((err: unknown) => setError(adminErrorMessage(err, onUnauthorized)));
+      .catch((err: unknown) => setLoadError(adminErrorMessage(err, onUnauthorized)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tournamentId]);
 
@@ -60,7 +68,6 @@ export default function TournamentPage() {
 
   async function handleCreateCategory(e: FormEvent) {
     e.preventDefault();
-    setError(null);
     setSubmitting(true);
     try {
       const body: CategoryRequest = {
@@ -70,119 +77,152 @@ export default function TournamentPage() {
         competitionFormat,
       };
       await apiPost(`/api/admin/tournaments/${tournamentId}/categories`, body, token);
+      toast.success('Categoria creata.');
       load();
     } catch (err) {
-      setError(adminErrorMessage(err, onUnauthorized));
+      toast.error(adminErrorMessage(err, onUnauthorized));
     } finally {
       setSubmitting(false);
     }
   }
 
-  async function handleDeleteCategory(id: number) {
-    if (!confirm('Eliminare questa categoria e tutti i suoi dati (squadre, calendario, risultati)?')) return;
+  async function handleDeleteCategory() {
+    if (!deleteTarget) return;
     try {
-      await apiDelete(`/api/admin/categories/${id}`, token);
+      await apiDelete(`/api/admin/categories/${deleteTarget.id}`, token);
+      toast.success('Categoria eliminata.');
       load();
     } catch (err) {
-      setError(adminErrorMessage(err, onUnauthorized));
+      toast.error(adminErrorMessage(err, onUnauthorized));
+    } finally {
+      setDeleteTarget(null);
     }
   }
 
-  if (error && !tournament) {
-    return <div className="page-message page-message--error">Errore: {error}</div>;
+  if (loadError && !tournament) {
+    return <div className="py-12 text-center text-destructive">Errore: {loadError}</div>;
   }
   if (!tournament || !categories) {
-    return <div className="page-message">Caricamento...</div>;
+    return <div className="py-12 text-center text-muted-foreground">Caricamento...</div>;
   }
 
   const usedNames = new Set(categories.map((c) => c.name));
   const availableNames = (['GOLD', 'SILVER', 'BRONZE'] as CategoryName[]).filter((n) => !usedNames.has(n));
 
   return (
-    <div className="admin-page">
-      <Link to="/admin" className="link-button">
-        ← Tutti i tornei
-      </Link>
-      <h2>
-        {tournament.name} <span className="admin-page__meta">({tournamentStatusLabel(tournament.status)})</span>
+    <div className="flex flex-col gap-4">
+      <Button variant="link" className="h-auto self-start px-0" asChild>
+        <Link to="/admin">← Tutti i tornei</Link>
+      </Button>
+      <h2 className="text-xl font-semibold">
+        {tournament.name}{' '}
+        <span className="text-sm font-normal text-muted-foreground">
+          ({tournamentStatusLabel(tournament.status)})
+        </span>
       </h2>
-      {error && <p className="form-error">{error}</p>}
 
       {categories.length === 0 ? (
-        <p className="page-message">Nessuna categoria creata per questo torneo.</p>
+        <p className="text-muted-foreground">Nessuna categoria creata per questo torneo.</p>
       ) : (
-        <ul className="admin-list">
+        <ul className="flex flex-col gap-2">
           {categories.map((cat) => (
-            <li key={cat.id} className="admin-list__row">
-              <Link to={`/admin/categorie/${cat.id}`} className="admin-list__title">
+            <li key={cat.id} className="flex items-center gap-3 rounded-xl border px-4 py-3">
+              <Link to={`/admin/categorie/${cat.id}`} className="font-semibold hover:underline">
                 {categoryLabel(cat.name)}
               </Link>
-              <span className="admin-list__meta">
+              <span className="mr-auto text-sm text-muted-foreground">
                 {competitionFormatLabel(cat.competitionFormat)} · {matchFormatLabel(cat.matchFormat)} ·{' '}
                 {phaseLabel(cat.phase)}
               </span>
-              <button
+              <Button
                 type="button"
-                className="btn btn--danger"
+                variant="destructive"
+                size="sm"
                 disabled={cat.scheduleLocked}
                 title={cat.scheduleLocked ? 'Categoria bloccata: già in corso' : undefined}
-                onClick={() => handleDeleteCategory(cat.id)}
+                onClick={() => setDeleteTarget(cat)}
               >
                 Elimina
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
       )}
 
       {availableNames.length > 0 && (
-        <section className="admin-card">
-          <h3>Nuova categoria</h3>
-          <form className="admin-form" onSubmit={handleCreateCategory}>
-            <label>
-              Categoria
-              <select value={name} onChange={(e) => setName(e.target.value as CategoryName)}>
-                {availableNames.map((n) => (
-                  <option key={n} value={n}>
-                    {categoryLabel(n)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Formato competizione
-              <select
-                value={competitionFormat}
-                onChange={(e) => setCompetitionFormat(e.target.value as CompetitionFormat)}
-              >
-                <option value="GIRONE">Girone (tabellone finale automatico)</option>
-                <option value="TABELLONE">Tabellone diretto (nessun girone)</option>
-              </select>
-            </label>
-            <label>
-              Formato incontro
-              <select value={matchFormat} onChange={(e) => setMatchFormat(e.target.value as MatchFormat)}>
-                <option value="SINGLE">Partita singola (coppia fissa)</option>
-                <option value="MULTI">A squadre (più sotto-partite)</option>
-              </select>
-            </label>
-            {matchFormat === 'MULTI' && (
-              <label>
-                Numero sotto-partite
-                <input
-                  type="number"
-                  min={1}
-                  value={subMatchesCount}
-                  onChange={(e) => setSubMatchesCount(Number(e.target.value))}
-                />
-              </label>
-            )}
-            <button type="submit" className="btn btn--primary" disabled={submitting}>
-              Crea categoria
-            </button>
-          </form>
-        </section>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Nuova categoria</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form className="flex flex-col items-start gap-3" onSubmit={handleCreateCategory}>
+              <div className="flex w-full max-w-90 flex-col gap-1.5">
+                <Label>Categoria</Label>
+                <Select value={name} onValueChange={(v) => setName(v as CategoryName)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableNames.map((n) => (
+                      <SelectItem key={n} value={n}>
+                        {categoryLabel(n)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex w-full max-w-90 flex-col gap-1.5">
+                <Label>Formato competizione</Label>
+                <Select value={competitionFormat} onValueChange={(v) => setCompetitionFormat(v as CompetitionFormat)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="GIRONE">Girone (tabellone finale automatico)</SelectItem>
+                    <SelectItem value="TABELLONE">Tabellone diretto (nessun girone)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex w-full max-w-90 flex-col gap-1.5">
+                <Label>Formato incontro</Label>
+                <Select value={matchFormat} onValueChange={(v) => setMatchFormat(v as MatchFormat)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="SINGLE">Partita singola (coppia fissa)</SelectItem>
+                    <SelectItem value="MULTI">A squadre (più sotto-partite)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {matchFormat === 'MULTI' && (
+                <div className="flex w-full max-w-90 flex-col gap-1.5">
+                  <Label htmlFor="sub-matches-count">Numero sotto-partite</Label>
+                  <Input
+                    id="sub-matches-count"
+                    type="number"
+                    min={1}
+                    value={subMatchesCount}
+                    onChange={(e) => setSubMatchesCount(Number(e.target.value))}
+                  />
+                </div>
+              )}
+              <Button type="submit" disabled={submitting}>
+                Crea categoria
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       )}
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title="Eliminare la categoria?"
+        description={`"${deleteTarget ? categoryLabel(deleteTarget.name) : ''}" e tutti i suoi dati (squadre, calendario, risultati) verranno eliminati definitivamente.`}
+        confirmLabel="Elimina"
+        onConfirm={handleDeleteCategory}
+      />
     </div>
   );
 }
