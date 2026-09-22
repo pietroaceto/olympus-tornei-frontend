@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Trophy } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -36,9 +37,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-svh items-center justify-center p-6">
+    <div className="flex min-h-svh items-center justify-center bg-slate-950 p-6">
       <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
+        <CardHeader className="items-center text-center">
+          <span className="mb-2 flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500">
+            <Trophy className="size-5.5 text-white" />
+          </span>
           <CardTitle className="text-xl">Olympus Tornei</CardTitle>
           <CardDescription>Accesso amministrazione</CardDescription>
         </CardHeader>
@@ -65,7 +69,11 @@ export default function LoginPage() {
 
             {error && <p className="text-sm text-destructive">{error}</p>}
 
-            <Button type="submit" className="w-full" disabled={submitting}>
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-600"
+              disabled={submitting}
+            >
               {submitting ? 'Accesso in corso...' : 'Accedi'}
             </Button>
           </form>

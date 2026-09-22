@@ -85,7 +85,7 @@ export default function DashboardPage() {
           type="button"
           size="icon"
           aria-label="Nuovo torneo"
-          className="rounded-full"
+          className="rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-600"
           onClick={() => setShowCreateForm((v) => !v)}
         >
           <Plus />

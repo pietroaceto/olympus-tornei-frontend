@@ -5,6 +5,7 @@ import { apiGet } from '../api/client';
 import type { CategoryResponse, TournamentResponse } from '../api/types';
 import { sortCategories } from '../lib/format';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { sidebarNavItemActiveClass, sidebarNavItemClass } from '../lib/sidebarNav';
 import { cn } from '@/lib/utils';
 
 export interface PublicOutletContext {
@@ -36,11 +37,6 @@ function currentCategoryId(pathname: string, tournamentId: string | undefined, s
   }
   return pathname.slice(prefix.length).split('/')[0] || null;
 }
-
-const navItemClass =
-  'flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm font-medium text-slate-300 transition-colors hover:bg-slate-800/60 hover:text-white';
-const navItemActiveClass =
-  'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white hover:from-violet-600 hover:to-fuchsia-600';
 
 export default function PublicShell() {
   const { tournamentId } = useParams();
@@ -95,7 +91,7 @@ export default function PublicShell() {
   const dataReady = tournamentId ? tournament !== null && categories !== null : true;
 
   return (
-    <div className="flex min-h-svh bg-muted/30">
+    <div className="flex min-h-svh bg-slate-50 dark:bg-slate-900">
       <aside className="flex w-64 shrink-0 flex-col gap-6 overflow-y-auto bg-slate-950 px-4 py-6 text-slate-100">
         <Link to="/" className="flex items-center gap-3 px-1">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500">
@@ -111,7 +107,7 @@ export default function PublicShell() {
           <span className="px-2 text-xs font-semibold tracking-wider text-slate-500 uppercase">Tornei</span>
           <Link
             to="/"
-            className={cn(navItemClass, location.pathname === '/' && navItemActiveClass)}
+            className={cn(sidebarNavItemClass, location.pathname === '/' && sidebarNavItemActiveClass)}
           >
             <Home className="size-4" />
             Tutti i tornei
@@ -145,7 +141,7 @@ export default function PublicShell() {
                 <button
                   key={s.key}
                   type="button"
-                  className={cn(navItemClass, section === s.key && navItemActiveClass)}
+                  className={cn(sidebarNavItemClass, section === s.key && sidebarNavItemActiveClass)}
                   onClick={() =>
                     navigate(
                       categoryId
