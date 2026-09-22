@@ -855,10 +855,6 @@ button {
   padding: 0;
 }
 
-.match-card__set-controls {
-  display: flex;
-  gap: 12px;
-}
 
 .manual-bracket__slots {
   display: grid;

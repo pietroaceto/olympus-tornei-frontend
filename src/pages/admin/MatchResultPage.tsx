@@ -13,6 +13,7 @@ import type {
 } from '../../api/types';
 import { resultTypeLabel, teamLabel } from '../../lib/format';
 import { adminErrorMessage } from '../../lib/adminError';
+import { activeSets, determineSingleResult, emptySets, padSets } from '../../lib/setScoring';
 import { useAuth } from '../../auth/AuthContext';
 
 interface SubMatchForm {
@@ -34,7 +35,7 @@ function emptySubMatch(): SubMatchForm {
     homePlayer2Id: '',
     awayPlayer1Id: '',
     awayPlayer2Id: '',
-    sets: [{ setNumber: 1, homeGames: 0, awayGames: 0 }],
+    sets: emptySets(),
   };
 }
 
@@ -82,7 +83,7 @@ export default function MatchResultPage() {
               homePlayer2Id: sm.homePlayer2?.id ?? '',
               awayPlayer1Id: sm.awayPlayer1?.id ?? '',
               awayPlayer2Id: sm.awayPlayer2?.id ?? '',
-              sets: sm.sets.map((s) => ({ setNumber: s.setNumber, homeGames: s.homeGames, awayGames: s.awayGames })),
+              sets: padSets(sm.sets.map((s) => ({ setNumber: s.setNumber, homeGames: s.homeGames, awayGames: s.awayGames }))),
             })),
           );
           if (m.resultType) setResultType(m.resultType);
@@ -112,30 +113,16 @@ export default function MatchResultPage() {
     );
   }
 
-  function addSet(subIndex: number) {
-    setSubMatches((prev) =>
-      prev.map((sm, i) =>
-        i === subIndex
-          ? { ...sm, sets: [...sm.sets, { setNumber: sm.sets.length + 1, homeGames: 0, awayGames: 0 }] }
-          : sm,
-      ),
-    );
+  function handleResetResult() {
+    if (!category) return;
+    setError(null);
+    setSavedMessage(null);
+    setSubMatches(Array.from({ length: category.subMatchesCount }, emptySubMatch));
+    setResultType('WIN_HOME');
   }
 
-  function removeSet(subIndex: number, setIndex: number) {
-    setSubMatches((prev) =>
-      prev.map((sm, i) =>
-        i === subIndex
-          ? {
-              ...sm,
-              sets: sm.sets
-                .filter((_, j) => j !== setIndex)
-                .map((s, j) => ({ ...s, setNumber: j + 1 })),
-            }
-          : sm,
-      ),
-    );
-  }
+  const isSingle = category?.subMatchesCount === 1;
+  const singleResult = isSingle && subMatches[0] ? determineSingleResult(subMatches[0].sets) : null;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -143,28 +130,52 @@ export default function MatchResultPage() {
     setSavedMessage(null);
 
     const parsed: SubMatchRequest[] = [];
-    for (const sm of subMatches) {
-      if (
-        sm.homePlayer1Id === '' ||
-        sm.homePlayer2Id === '' ||
-        sm.awayPlayer1Id === '' ||
-        sm.awayPlayer2Id === ''
-      ) {
-        setError('Seleziona tutti i giocatori per ogni sotto-partita.');
+    let finalResultType: MatchResultType;
+
+    if (isSingle) {
+      const sm = subMatches[0];
+      if (sm.homePlayer1Id === '' || sm.homePlayer2Id === '' || sm.awayPlayer1Id === '' || sm.awayPlayer2Id === '') {
+        setError('Seleziona tutti i giocatori.');
         return;
       }
+      const determined = determineSingleResult(sm.sets);
+      if (!determined.resultType) {
+        setError(determined.error ?? 'Risultato non valido.');
+        return;
+      }
+      finalResultType = determined.resultType;
       parsed.push({
         homePlayer1Id: sm.homePlayer1Id,
         homePlayer2Id: sm.homePlayer2Id,
         awayPlayer1Id: sm.awayPlayer1Id,
         awayPlayer2Id: sm.awayPlayer2Id,
-        sets: sm.sets,
+        sets: determined.usedSets.map((s, i) => ({ setNumber: i + 1, homeGames: s.homeGames, awayGames: s.awayGames })),
       });
+    } else {
+      finalResultType = resultType;
+      for (const sm of subMatches) {
+        if (sm.homePlayer1Id === '' || sm.homePlayer2Id === '' || sm.awayPlayer1Id === '' || sm.awayPlayer2Id === '') {
+          setError('Seleziona tutti i giocatori per ogni sotto-partita.');
+          return;
+        }
+        const active = activeSets(sm.sets);
+        if (active.length === 0) {
+          setError('Inserisci almeno un set per ogni sotto-partita.');
+          return;
+        }
+        parsed.push({
+          homePlayer1Id: sm.homePlayer1Id,
+          homePlayer2Id: sm.homePlayer2Id,
+          awayPlayer1Id: sm.awayPlayer1Id,
+          awayPlayer2Id: sm.awayPlayer2Id,
+          sets: active.map((s, i) => ({ setNumber: i + 1, homeGames: s.homeGames, awayGames: s.awayGames })),
+        });
+      }
     }
 
     setSubmitting(true);
     try {
-      const body: MatchResultRequest = { subMatches: parsed, resultType };
+      const body: MatchResultRequest = { subMatches: parsed, resultType: finalResultType };
       const updated = await apiPost<MatchDetailResponse>(`/api/admin/matches/${matchId}/result`, body, token);
       setMatch(updated);
       setSavedMessage('Risultato salvato.');
@@ -214,7 +225,7 @@ export default function MatchResultPage() {
       <form className="result-form" onSubmit={handleSubmit}>
         {subMatches.map((sm, subIndex) => (
           <div key={subIndex} className="match-card">
-            <div className="match-card__title">Sotto-partita {subIndex + 1}</div>
+            {!isSingle && <div className="match-card__title">Sotto-partita {subIndex + 1}</div>}
             <div className="match-card__box">
               <div className="match-card__row">
                 <div className="match-card__team-info">
@@ -320,67 +331,67 @@ export default function MatchResultPage() {
                 </div>
               </div>
             </div>
-
-            <div className="match-card__set-controls">
-              <button type="button" className="link-button" onClick={() => addSet(subIndex)}>
-                + set
-              </button>
-              {sm.sets.length > 1 && (
-                <button
-                  type="button"
-                  className="link-button link-button--danger"
-                  onClick={() => removeSet(subIndex, sm.sets.length - 1)}
-                >
-                  − set
-                </button>
-              )}
-            </div>
           </div>
         ))}
 
-        <fieldset className="admin-card">
-          <legend>Esito finale</legend>
-          <label>
-            <input
-              type="radio"
-              name="resultType"
-              checked={resultType === 'WIN_HOME'}
-              onChange={() => setResultType('WIN_HOME')}
-            />
-            Vittoria {match.homeTeamName}
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="resultType"
-              checked={resultType === 'WIN_HOME_TB'}
-              onChange={() => setResultType('WIN_HOME_TB')}
-            />
-            Vittoria {match.homeTeamName} al tie-break
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="resultType"
-              checked={resultType === 'WIN_AWAY'}
-              onChange={() => setResultType('WIN_AWAY')}
-            />
-            Vittoria {match.awayTeamName}
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="resultType"
-              checked={resultType === 'WIN_AWAY_TB'}
-              onChange={() => setResultType('WIN_AWAY_TB')}
-            />
-            Vittoria {match.awayTeamName} al tie-break
-          </label>
-        </fieldset>
+        {isSingle ? (
+          <p className={singleResult?.resultType ? 'form-success' : 'admin-page__meta'}>
+            {singleResult?.resultType
+              ? `Esito: ${resultTypeLabel(singleResult.resultType)} (${
+                  singleResult.resultType === 'WIN_HOME' || singleResult.resultType === 'WIN_AWAY' ? '3' : '2'
+                } punti)`
+              : (singleResult?.error ?? 'Inserisci i punteggi dei set.')}
+          </p>
+        ) : (
+          <fieldset className="admin-card">
+            <legend>Esito finale</legend>
+            <label>
+              <input
+                type="radio"
+                name="resultType"
+                checked={resultType === 'WIN_HOME'}
+                onChange={() => setResultType('WIN_HOME')}
+              />
+              Vittoria {match.homeTeamName}
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="resultType"
+                checked={resultType === 'WIN_HOME_TB'}
+                onChange={() => setResultType('WIN_HOME_TB')}
+              />
+              Vittoria {match.homeTeamName} al tie-break
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="resultType"
+                checked={resultType === 'WIN_AWAY'}
+                onChange={() => setResultType('WIN_AWAY')}
+              />
+              Vittoria {match.awayTeamName}
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="resultType"
+                checked={resultType === 'WIN_AWAY_TB'}
+                onChange={() => setResultType('WIN_AWAY_TB')}
+              />
+              Vittoria {match.awayTeamName} al tie-break
+            </label>
+          </fieldset>
+        )}
 
-        <button type="submit" className="btn btn--primary" disabled={submitting}>
-          {match.status === 'PLAYED' ? 'Aggiorna risultato' : 'Salva risultato'}
-        </button>
+        <div className="admin-actions">
+          <button type="submit" className="btn btn--primary" disabled={submitting}>
+            {match.status === 'PLAYED' ? 'Aggiorna risultato' : 'Salva risultato'}
+          </button>
+          <button type="button" className="btn btn--danger" disabled={submitting} onClick={handleResetResult}>
+            Reset risultato
+          </button>
+        </div>
       </form>
 
       {match.suggestedWinner && (
