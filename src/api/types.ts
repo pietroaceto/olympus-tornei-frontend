@@ -1,5 +1,7 @@
-export type TournamentStatus = 'IN_CORSO' | 'CONCLUSO' | string;
+export type TournamentStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED';
 export type CategoryPhase = 'GIRONE' | 'TABELLONE' | 'CONCLUSA';
+export type CategoryName = 'GOLD' | 'SILVER' | 'BRONZE';
+export type MatchFormat = 'SINGLE' | 'MULTI';
 export type MatchStatus = 'SCHEDULED' | 'PLAYED';
 export type MatchResultType = 'WIN_HOME' | 'WIN_HOME_TB' | 'WIN_AWAY' | 'WIN_AWAY_TB';
 
@@ -14,7 +16,7 @@ export interface CategoryResponse {
   id: number;
   tournamentId: number;
   name: string;
-  matchFormat: 'SINGLE' | 'MULTI';
+  matchFormat: MatchFormat;
   subMatchesCount: number;
   phase: CategoryPhase;
   scheduleLocked: boolean;
@@ -114,4 +116,74 @@ export interface BracketRoundResponse {
 export interface BracketResponse {
   totalRounds: number | null;
   rounds: BracketRoundResponse[];
+}
+
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  username: string;
+  role: string;
+}
+
+export interface CreateUserRequest {
+  username: string;
+  password: string;
+}
+
+export interface UserResponse {
+  id: number;
+  username: string;
+  role: string;
+}
+
+export interface TournamentRequest {
+  name: string;
+  season: string | null;
+  status: TournamentStatus;
+}
+
+export interface CategoryRequest {
+  name: CategoryName;
+  matchFormat: MatchFormat;
+  subMatchesCount: number | null;
+}
+
+export interface TeamCreateRequest {
+  name: string;
+  players: string[];
+}
+
+export interface TeamUpdateRequest {
+  name: string;
+}
+
+export interface PlayerRequest {
+  name: string;
+}
+
+export interface SetScoreRequest {
+  setNumber: number;
+  homeGames: number;
+  awayGames: number;
+}
+
+export interface SubMatchRequest {
+  homePlayer1Id: number;
+  homePlayer2Id: number;
+  awayPlayer1Id: number;
+  awayPlayer2Id: number;
+  sets: SetScoreRequest[];
+}
+
+export interface MatchResultRequest {
+  subMatches: SubMatchRequest[];
+  resultType: MatchResultType;
+}
+
+export interface GenerateBracketRequest {
+  qualifiedCount: number;
 }

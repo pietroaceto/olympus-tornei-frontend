@@ -57,3 +57,20 @@ export function resultTypeLabel(resultType: MatchResultType | null): string {
 export function teamLabel(name: string | null): string {
   return name ?? 'Da definire';
 }
+
+export function tournamentStatusLabel(status: string): string {
+  switch (status) {
+    case 'DRAFT':
+      return 'Bozza';
+    case 'ACTIVE':
+      return 'In corso';
+    case 'COMPLETED':
+      return 'Concluso';
+    default:
+      return status;
+  }
+}
+
+export function matchFormatLabel(format: string): string {
+  return format === 'SINGLE' ? 'Partita singola' : 'A squadre (più sotto-partite)';
+}

@@ -22,8 +22,13 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     let message = `Errore ${res.status}`;
     try {
       const body = await res.json();
-      if (typeof body?.message === 'string') {
+      if (typeof body?.message === 'string' && body.message.length > 0) {
         message = body.message;
+      } else if (typeof body?.error === 'string' && body.error.length > 0) {
+        // Il gestore custom di AuthenticationException (login fallito) usa
+        // {"error": "..."} invece del corpo standard di Spring Boot, dove
+        // "error" è solo la reason phrase HTTP generica ("Bad Request").
+        message = body.error;
       }
     } catch {
       // corpo non JSON, si mantiene il messaggio di default
