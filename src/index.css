@@ -771,24 +771,93 @@ button {
   align-items: flex-start;
 }
 
-.result-form__pairs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 12px;
-}
-
-.set-scores {
+.match-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
 }
 
-.set-scores__row {
+.match-card__title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.match-card__box {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-alt);
+  overflow: hidden;
+}
+
+.match-card__row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 14px 18px;
+}
+
+.match-card__divider {
+  height: 1px;
+  background: var(--border);
+}
+
+.match-card__team-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.match-card__team-name {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.match-card__players {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.match-card__players select {
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0;
+}
+
+.match-card__scores {
+  display: flex;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.match-card__score-input {
+  width: 32px;
+  text-align: center;
+  font: inherit;
+  font-size: 22px;
+  font-weight: 700;
+  border: none;
+  background: none;
+  color: var(--text-h);
+  padding: 0;
+}
+
+.match-card__set-controls {
+  display: flex;
+  gap: 12px;
 }
 
 .manual-bracket__slots {
@@ -815,17 +884,8 @@ button {
   color: var(--text);
 }
 
-.set-scores__row input {
-  width: 56px;
-  padding: 6px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text);
-}
-
 @media (max-width: 640px) {
-  .result-form__pairs {
-    grid-template-columns: 1fr;
+  .match-card__row {
+    justify-content: flex-start;
   }
 }

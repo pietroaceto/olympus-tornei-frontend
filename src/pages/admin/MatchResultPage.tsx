@@ -23,6 +23,11 @@ interface SubMatchForm {
   sets: SetScoreRequest[];
 }
 
+function sanitizeGames(raw: string): number {
+  const digits = raw.replace(/\D/g, '');
+  return digits === '' ? 0 : Number(digits);
+}
+
 function emptySubMatch(): SubMatchForm {
   return {
     homePlayer1Id: '',
@@ -208,113 +213,129 @@ export default function MatchResultPage() {
 
       <form className="result-form" onSubmit={handleSubmit}>
         {subMatches.map((sm, subIndex) => (
-          <fieldset key={subIndex} className="admin-card">
-            <legend>Sotto-partita {subIndex + 1}</legend>
-
-            <div className="result-form__pairs">
-              <div>
-                <label>
-                  Casa - Giocatore 1
-                  <select
-                    value={sm.homePlayer1Id}
-                    onChange={(e) => updateSubMatch(subIndex, { homePlayer1Id: Number(e.target.value) })}
-                    required
-                  >
-                    <option value="" disabled>
-                      Seleziona
-                    </option>
-                    {homeTeam.players.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
+          <div key={subIndex} className="match-card">
+            <div className="match-card__title">Sotto-partita {subIndex + 1}</div>
+            <div className="match-card__box">
+              <div className="match-card__row">
+                <div className="match-card__team-info">
+                  <span className="match-card__team-name">{match.homeTeamName}</span>
+                  <div className="match-card__players">
+                    <select
+                      value={sm.homePlayer1Id}
+                      onChange={(e) => updateSubMatch(subIndex, { homePlayer1Id: Number(e.target.value) })}
+                      required
+                    >
+                      <option value="" disabled>
+                        Giocatore 1
                       </option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  Casa - Giocatore 2
-                  <select
-                    value={sm.homePlayer2Id}
-                    onChange={(e) => updateSubMatch(subIndex, { homePlayer2Id: Number(e.target.value) })}
-                    required
-                  >
-                    <option value="" disabled>
-                      Seleziona
-                    </option>
-                    {homeTeam.players.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
+                      {homeTeam.players.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={sm.homePlayer2Id}
+                      onChange={(e) => updateSubMatch(subIndex, { homePlayer2Id: Number(e.target.value) })}
+                      required
+                    >
+                      <option value="" disabled>
+                        Giocatore 2
                       </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <div>
-                <label>
-                  Ospite - Giocatore 1
-                  <select
-                    value={sm.awayPlayer1Id}
-                    onChange={(e) => updateSubMatch(subIndex, { awayPlayer1Id: Number(e.target.value) })}
-                    required
-                  >
-                    <option value="" disabled>
-                      Seleziona
-                    </option>
-                    {awayTeam.players.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  Ospite - Giocatore 2
-                  <select
-                    value={sm.awayPlayer2Id}
-                    onChange={(e) => updateSubMatch(subIndex, { awayPlayer2Id: Number(e.target.value) })}
-                    required
-                  >
-                    <option value="" disabled>
-                      Seleziona
-                    </option>
-                    {awayTeam.players.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-            </div>
-
-            <div className="set-scores">
-              {sm.sets.map((set, setIndex) => (
-                <div key={setIndex} className="set-scores__row">
-                  <span>Set {set.setNumber}</span>
-                  <input
-                    type="number"
-                    min={0}
-                    value={set.homeGames}
-                    onChange={(e) => updateSet(subIndex, setIndex, { homeGames: Number(e.target.value) })}
-                  />
-                  <span>-</span>
-                  <input
-                    type="number"
-                    min={0}
-                    value={set.awayGames}
-                    onChange={(e) => updateSet(subIndex, setIndex, { awayGames: Number(e.target.value) })}
-                  />
-                  {sm.sets.length > 1 && (
-                    <button type="button" className="link-button link-button--danger" onClick={() => removeSet(subIndex, setIndex)}>
-                      rimuovi
-                    </button>
-                  )}
+                      {homeTeam.players.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-              ))}
-              <button type="button" className="btn btn--small btn--ghost" onClick={() => addSet(subIndex)}>
-                + Aggiungi set
-              </button>
+                <div className="match-card__scores">
+                  {sm.sets.map((set, setIndex) => (
+                    <input
+                      key={setIndex}
+                      className="match-card__score-input"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={set.homeGames}
+                      onChange={(e) =>
+                        updateSet(subIndex, setIndex, { homeGames: sanitizeGames(e.target.value) })
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="match-card__divider" />
+
+              <div className="match-card__row">
+                <div className="match-card__team-info">
+                  <span className="match-card__team-name">{match.awayTeamName}</span>
+                  <div className="match-card__players">
+                    <select
+                      value={sm.awayPlayer1Id}
+                      onChange={(e) => updateSubMatch(subIndex, { awayPlayer1Id: Number(e.target.value) })}
+                      required
+                    >
+                      <option value="" disabled>
+                        Giocatore 1
+                      </option>
+                      {awayTeam.players.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={sm.awayPlayer2Id}
+                      onChange={(e) => updateSubMatch(subIndex, { awayPlayer2Id: Number(e.target.value) })}
+                      required
+                    >
+                      <option value="" disabled>
+                        Giocatore 2
+                      </option>
+                      {awayTeam.players.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="match-card__scores">
+                  {sm.sets.map((set, setIndex) => (
+                    <input
+                      key={setIndex}
+                      className="match-card__score-input"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={set.awayGames}
+                      onChange={(e) =>
+                        updateSet(subIndex, setIndex, { awayGames: sanitizeGames(e.target.value) })
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
-          </fieldset>
+
+            <div className="match-card__set-controls">
+              <button type="button" className="link-button" onClick={() => addSet(subIndex)}>
+                + set
+              </button>
+              {sm.sets.length > 1 && (
+                <button
+                  type="button"
+                  className="link-button link-button--danger"
+                  onClick={() => removeSet(subIndex, sm.sets.length - 1)}
+                >
+                  − set
+                </button>
+              )}
+            </div>
+          </div>
         ))}
 
         <fieldset className="admin-card">
