@@ -1,8 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
-import CategoryLayout from './components/CategoryLayout';
+import TournamentShell from './components/TournamentShell';
 import AdminLayout from './components/AdminLayout';
-import HomeRedirect from './components/HomeRedirect';
+import TournamentListPage from './pages/TournamentListPage';
 import SchedulePage from './pages/SchedulePage';
 import StandingsPage from './pages/StandingsPage';
 import BracketPage from './pages/BracketPage';
@@ -19,12 +19,15 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<HomeRedirect />} />
-          <Route path="/t/:tournamentId/c/:categoryId" element={<CategoryLayout />}>
-            <Route path="schedule" element={<SchedulePage />} />
-            <Route path="standings" element={<StandingsPage />} />
-            <Route path="bracket" element={<BracketPage />} />
-            <Route path="match/:matchId" element={<MatchDetailPage />} />
+          <Route path="/" element={<TournamentListPage />} />
+          <Route path="/tornei/:tournamentId" element={<TournamentShell />}>
+            <Route path="gironi" element={<SchedulePage />} />
+            <Route path="gironi/:categoryId" element={<SchedulePage />} />
+            <Route path="classifica" element={<StandingsPage />} />
+            <Route path="classifica/:categoryId" element={<StandingsPage />} />
+            <Route path="tabellone" element={<BracketPage />} />
+            <Route path="tabellone/:categoryId" element={<BracketPage />} />
+            <Route path="partita/:matchId" element={<MatchDetailPage />} />
           </Route>
 
           <Route path="/admin/login" element={<LoginPage />} />
