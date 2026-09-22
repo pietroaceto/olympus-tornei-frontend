@@ -83,26 +83,28 @@ export default function TournamentListPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((t) => (
-            <Card key={t.id} className="justify-between gap-3">
-              <CardHeader className="gap-1">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold">{t.name}</h3>
-                  <Badge className={STATUS_BADGE_CLASS[t.status]}>{tournamentStatusLabel(t.status)}</Badge>
-                </div>
-                {t.season && <p className="text-sm text-muted-foreground">{t.season}</p>}
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <Layers className="size-4" />
-                  {categoryCounts[t.id] ?? '…'} categorie
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button asChild className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-600">
-                  <Link to={`/tornei/${t.id}/gironi`}>Vedi torneo</Link>
-                </Button>
-              </CardFooter>
-            </Card>
+            <div key={t.id} className="rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 p-[1.5px]">
+              <Card className="h-full justify-between gap-3 ring-0">
+                <CardHeader className="gap-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold">{t.name}</h3>
+                    <Badge className={STATUS_BADGE_CLASS[t.status]}>{tournamentStatusLabel(t.status)}</Badge>
+                  </div>
+                  {t.season && <p className="text-sm text-muted-foreground">{t.season}</p>}
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <Layers className="size-4" />
+                    {categoryCounts[t.id] ?? '…'} categorie
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button asChild className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-600">
+                    <Link to={`/tornei/${t.id}/gironi`}>Vedi torneo</Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
           ))}
         </div>
       )}
