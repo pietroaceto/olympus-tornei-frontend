@@ -13,11 +13,11 @@ export function MatchScoreRow({ match }: { match: MatchResponse }) {
   const blocks = match.subMatches.length > 0 ? match.subMatches : [{ ordine: 0, sets: [] }];
 
   return (
-    <div className="flex w-full items-center gap-4">
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
+    <div className="flex w-full items-center gap-2 sm:gap-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:gap-2">
         {blocks.map((sm, i) => (
           <div key={sm.ordine ?? i} className="flex flex-col gap-1">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center justify-between gap-2 sm:gap-3">
               <span
                 className={cn(
                   'truncate',
@@ -28,9 +28,9 @@ export function MatchScoreRow({ match }: { match: MatchResponse }) {
                 {teamLabel(match.homeTeamName)}
               </span>
               {sm.sets.length > 0 && (
-                <div className="flex shrink-0 gap-3">
+                <div className="flex shrink-0 gap-1.5 sm:gap-3">
                   {sm.sets.map((s) => (
-                    <span key={s.setNumber} className="w-5 text-center text-sm font-semibold">
+                    <span key={s.setNumber} className="w-4 text-center text-sm font-semibold sm:w-5">
                       {s.homeGames}
                     </span>
                   ))}
@@ -38,7 +38,7 @@ export function MatchScoreRow({ match }: { match: MatchResponse }) {
               )}
             </div>
             <div className="h-px bg-border" />
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center justify-between gap-2 sm:gap-3">
               <span
                 className={cn(
                   'truncate',
@@ -49,9 +49,9 @@ export function MatchScoreRow({ match }: { match: MatchResponse }) {
                 {teamLabel(match.awayTeamName)}
               </span>
               {sm.sets.length > 0 && (
-                <div className="flex shrink-0 gap-3">
+                <div className="flex shrink-0 gap-1.5 sm:gap-3">
                   {sm.sets.map((s) => (
-                    <span key={s.setNumber} className="w-5 text-center text-sm font-semibold">
+                    <span key={s.setNumber} className="w-4 text-center text-sm font-semibold sm:w-5">
                       {s.awayGames}
                     </span>
                   ))}
@@ -61,7 +61,9 @@ export function MatchScoreRow({ match }: { match: MatchResponse }) {
           </div>
         ))}
       </div>
-      <Badge variant={played ? 'default' : 'outline'}>{matchStatusLabel(match.status)}</Badge>
+      <Badge variant={played ? 'default' : 'outline'} className="shrink-0">
+        {matchStatusLabel(match.status)}
+      </Badge>
     </div>
   );
 }

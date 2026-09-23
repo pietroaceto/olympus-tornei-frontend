@@ -24,9 +24,9 @@ export default function Bracket({
   isMatchClickable?: (match: BracketRoundResponse['matches'][number]) => boolean;
 }) {
   return (
-    <div className="flex items-stretch gap-10 overflow-x-auto p-2 pb-4">
+    <div className="flex items-stretch gap-6 overflow-x-auto p-2 pb-4 sm:gap-10">
       {rounds.map((round, roundPos) => (
-        <div key={round.roundIndex} className="flex w-48 shrink-0 flex-col">
+        <div key={round.roundIndex} className="flex w-40 shrink-0 flex-col sm:w-48">
           <div className="mb-4 text-center">
             <h2 className="text-xs font-semibold tracking-wide text-foreground uppercase">
               {roundName(round.roundIndex, totalRounds)}
@@ -45,14 +45,14 @@ export default function Bracket({
                     className={cn(
                       'relative flex w-full flex-col overflow-hidden rounded-lg bg-card text-left disabled:cursor-default',
                       roundPos < rounds.length - 1 &&
-                        "after:absolute after:top-1/2 after:right-[-21px] after:h-px after:w-5 after:bg-border after:content-['']",
+                        "after:absolute after:top-1/2 after:right-[-13px] after:h-px after:w-3 after:bg-border after:content-[''] sm:after:right-[-21px] sm:after:w-5",
                       roundPos > 0 &&
-                        "before:absolute before:top-1/2 before:left-[-21px] before:h-px before:w-5 before:bg-border before:content-['']",
+                        "before:absolute before:top-1/2 before:left-[-13px] before:h-px before:w-3 before:bg-border before:content-[''] sm:before:left-[-21px] sm:before:w-5",
                     )}
                     disabled={isMatchClickable ? !isMatchClickable(match) : false}
                     onClick={() => onMatchClick(match.matchId)}
                   >
-                    <span className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
+                    <span className="flex items-center justify-between gap-1.5 px-2.5 py-1.5 text-sm sm:gap-2 sm:px-3 sm:py-2">
                       <span
                         className={cn(
                           'truncate',
@@ -63,9 +63,9 @@ export default function Bracket({
                         {teamLabel(match.homeTeamName)}
                       </span>
                       {sets.length > 0 && (
-                        <span className="flex shrink-0 gap-1.5 text-xs font-semibold">
+                        <span className="flex shrink-0 gap-1 text-xs font-semibold sm:gap-1.5">
                           {sets.map((s) => (
-                            <span key={s.setNumber} className="w-3.5 text-center">
+                            <span key={s.setNumber} className="w-3 text-center sm:w-3.5">
                               {s.homeGames}
                             </span>
                           ))}
@@ -73,7 +73,7 @@ export default function Bracket({
                       )}
                     </span>
                     <span className="h-px bg-border" />
-                    <span className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
+                    <span className="flex items-center justify-between gap-1.5 px-2.5 py-1.5 text-sm sm:gap-2 sm:px-3 sm:py-2">
                       <span
                         className={cn(
                           'truncate',
@@ -84,9 +84,9 @@ export default function Bracket({
                         {teamLabel(match.awayTeamName)}
                       </span>
                       {sets.length > 0 && (
-                        <span className="flex shrink-0 gap-1.5 text-xs font-semibold">
+                        <span className="flex shrink-0 gap-1 text-xs font-semibold sm:gap-1.5">
                           {sets.map((s) => (
-                            <span key={s.setNumber} className="w-3.5 text-center">
+                            <span key={s.setNumber} className="w-3 text-center sm:w-3.5">
                               {s.awayGames}
                             </span>
                           ))}
