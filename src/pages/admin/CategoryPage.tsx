@@ -598,7 +598,7 @@ export default function CategoryPage() {
                 <Bracket
                   rounds={bracket.rounds}
                   totalRounds={bracket.totalRounds}
-                  onMatchClick={(matchId) => navigate(`/admin/partite/${matchId}`)}
+                  onMatchClick={(matchId) => setEditingMatchId(matchId)}
                 />
               </>
             )}
