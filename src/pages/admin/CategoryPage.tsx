@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiDelete, apiGet, apiPost, apiPut } from '../../api/client';
 import type {
@@ -26,8 +27,9 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Badge } from '../../components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 
 function TeamCard({
@@ -262,6 +264,7 @@ export default function CategoryPage() {
   const [newTeamPlayers, setNewTeamPlayers] = useState('');
   const [qualifiedCount, setQualifiedCount] = useState(4);
   const [showManualForm, setShowManualForm] = useState(false);
+  const [showAddTeamDialog, setShowAddTeamDialog] = useState(false);
   const [busy, setBusy] = useState(false);
   const [confirmResetSchedule, setConfirmResetSchedule] = useState(false);
   const [confirmResetBracket, setConfirmResetBracket] = useState(false);
@@ -304,6 +307,7 @@ export default function CategoryPage() {
       await apiPost(`/api/admin/categories/${categoryId}/teams`, { name: newTeamName, players }, token);
       setNewTeamName('');
       setNewTeamPlayers('');
+      setShowAddTeamDialog(false);
       toast.success('Squadra aggiunta.');
       load();
     } catch (err) {
@@ -406,6 +410,19 @@ export default function CategoryPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Squadre</CardTitle>
+          {!category.scheduleLocked && (
+            <CardAction>
+              <Button
+                type="button"
+                size="icon"
+                aria-label="Aggiungi squadra"
+                className="rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-600"
+                onClick={() => setShowAddTeamDialog(true)}
+              >
+                <Plus />
+              </Button>
+            </CardAction>
+          )}
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           {teams.length === 0 ? (
@@ -424,29 +441,36 @@ export default function CategoryPage() {
               ))}
             </ul>
           )}
+        </CardContent>
+      </Card>
 
-          {!category.scheduleLocked && (
-            <form className="flex flex-col items-start gap-3" onSubmit={handleCreateTeam}>
-              <div className="flex w-full max-w-90 flex-col gap-1.5">
-                <Label htmlFor="new-team-name">Nome squadra</Label>
-                <Input id="new-team-name" value={newTeamName} onChange={(e) => setNewTeamName(e.target.value)} required />
-              </div>
-              <div className="flex w-full max-w-90 flex-col gap-1.5">
-                <Label htmlFor="new-team-players">Giocatori (separati da virgola)</Label>
-                <Input
-                  id="new-team-players"
-                  value={newTeamPlayers}
-                  onChange={(e) => setNewTeamPlayers(e.target.value)}
-                  placeholder="Mario Rossi, Luca Bianchi"
-                />
-              </div>
+      <Dialog open={showAddTeamDialog} onOpenChange={setShowAddTeamDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nuova squadra</DialogTitle>
+          </DialogHeader>
+          <form className="flex flex-col gap-3" onSubmit={handleCreateTeam}>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="new-team-name">Nome squadra</Label>
+              <Input id="new-team-name" value={newTeamName} onChange={(e) => setNewTeamName(e.target.value)} required autoFocus />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="new-team-players">Giocatori (separati da virgola)</Label>
+              <Input
+                id="new-team-players"
+                value={newTeamPlayers}
+                onChange={(e) => setNewTeamPlayers(e.target.value)}
+                placeholder="Mario Rossi, Luca Bianchi"
+              />
+            </div>
+            <DialogFooter>
               <Button type="submit" disabled={busy}>
                 Aggiungi squadra
               </Button>
-            </form>
-          )}
-        </CardContent>
-      </Card>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {category.competitionFormat === 'GIRONE' && (
         <Card>
