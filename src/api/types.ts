@@ -116,6 +116,7 @@ export interface BracketMatchResponse {
   status: MatchStatus;
   resultType: MatchResultType | null;
   winnerTeamId: number | null;
+  subMatches: MatchSubMatchScoreResponse[];
 }
 
 export interface BracketRoundResponse {

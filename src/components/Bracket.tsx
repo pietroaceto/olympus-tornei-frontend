@@ -36,42 +36,67 @@ export default function Bracket({
             </span>
           </div>
           <div className="flex flex-1 flex-col justify-around gap-5">
-            {round.matches.map((match) => (
-              <GradientBorder key={match.matchId} className="rounded-lg">
-                <button
-                  type="button"
-                  className={cn(
-                    'relative flex w-full flex-col overflow-hidden rounded-lg bg-card text-left disabled:cursor-default',
-                    roundPos < rounds.length - 1 &&
-                      "after:absolute after:top-1/2 after:right-[-21px] after:h-px after:w-5 after:bg-border after:content-['']",
-                    roundPos > 0 &&
-                      "before:absolute before:top-1/2 before:left-[-21px] before:h-px before:w-5 before:bg-border before:content-['']",
-                  )}
-                  disabled={isMatchClickable ? !isMatchClickable(match) : false}
-                  onClick={() => onMatchClick(match.matchId)}
-                >
-                  <span
+            {round.matches.map((match) => {
+              const sets = match.subMatches[0]?.sets ?? [];
+              return (
+                <GradientBorder key={match.matchId} className="rounded-lg">
+                  <button
+                    type="button"
                     className={cn(
-                      'truncate px-3 py-2 text-sm',
-                      match.homeTeamName === null && 'text-muted-foreground italic',
-                      match.winnerTeamId !== null && match.winnerTeamId === match.homeTeamId && 'font-bold text-primary',
+                      'relative flex w-full flex-col overflow-hidden rounded-lg bg-card text-left disabled:cursor-default',
+                      roundPos < rounds.length - 1 &&
+                        "after:absolute after:top-1/2 after:right-[-21px] after:h-px after:w-5 after:bg-border after:content-['']",
+                      roundPos > 0 &&
+                        "before:absolute before:top-1/2 before:left-[-21px] before:h-px before:w-5 before:bg-border before:content-['']",
                     )}
+                    disabled={isMatchClickable ? !isMatchClickable(match) : false}
+                    onClick={() => onMatchClick(match.matchId)}
                   >
-                    {teamLabel(match.homeTeamName)}
-                  </span>
-                  <span className="h-px bg-border" />
-                  <span
-                    className={cn(
-                      'truncate px-3 py-2 text-sm',
-                      match.awayTeamName === null && 'text-muted-foreground italic',
-                      match.winnerTeamId !== null && match.winnerTeamId === match.awayTeamId && 'font-bold text-primary',
-                    )}
-                  >
-                    {teamLabel(match.awayTeamName)}
-                  </span>
-                </button>
-              </GradientBorder>
-            ))}
+                    <span className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
+                      <span
+                        className={cn(
+                          'truncate',
+                          match.homeTeamName === null && 'text-muted-foreground italic',
+                          match.winnerTeamId !== null && match.winnerTeamId === match.homeTeamId && 'font-bold text-primary',
+                        )}
+                      >
+                        {teamLabel(match.homeTeamName)}
+                      </span>
+                      {sets.length > 0 && (
+                        <span className="flex shrink-0 gap-1.5 text-xs font-semibold">
+                          {sets.map((s) => (
+                            <span key={s.setNumber} className="w-3.5 text-center">
+                              {s.homeGames}
+                            </span>
+                          ))}
+                        </span>
+                      )}
+                    </span>
+                    <span className="h-px bg-border" />
+                    <span className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
+                      <span
+                        className={cn(
+                          'truncate',
+                          match.awayTeamName === null && 'text-muted-foreground italic',
+                          match.winnerTeamId !== null && match.winnerTeamId === match.awayTeamId && 'font-bold text-primary',
+                        )}
+                      >
+                        {teamLabel(match.awayTeamName)}
+                      </span>
+                      {sets.length > 0 && (
+                        <span className="flex shrink-0 gap-1.5 text-xs font-semibold">
+                          {sets.map((s) => (
+                            <span key={s.setNumber} className="w-3.5 text-center">
+                              {s.awayGames}
+                            </span>
+                          ))}
+                        </span>
+                      )}
+                    </span>
+                  </button>
+                </GradientBorder>
+              );
+            })}
           </div>
         </div>
       ))}
