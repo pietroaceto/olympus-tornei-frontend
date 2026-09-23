@@ -126,7 +126,7 @@ export default function TournamentPage() {
       ) : (
         <ul className="flex flex-col gap-2">
           {categories.map((cat) => (
-            <li key={cat.id} className="flex items-center gap-3 rounded-xl border px-4 py-3">
+            <li key={cat.id} className="flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3">
               <Link to={`/admin/categorie/${cat.id}`} className="font-semibold hover:underline">
                 {categoryLabel(cat.name)}
               </Link>

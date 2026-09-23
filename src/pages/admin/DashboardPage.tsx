@@ -145,7 +145,7 @@ export default function DashboardPage() {
       ) : (
         <ul className="flex flex-col gap-2">
           {sortedTournaments.map((t) => (
-            <li key={t.id} className="flex items-center gap-3 rounded-xl border px-4 py-3">
+            <li key={t.id} className="flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3">
               <Link to={`/admin/tornei/${t.id}`} className="font-semibold hover:underline">
                 {t.name}
               </Link>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams, Outlet } from 'react-router-dom';
-import { CalendarDays, Home, ListOrdered, Network, Trophy } from 'lucide-react';
+import { CalendarDays, Home, ListOrdered, Menu, Network, Trophy, X } from 'lucide-react';
 import { apiGet } from '../api/client';
 import type { CategoryResponse, TournamentResponse } from '../api/types';
 import { sortCategories } from '../lib/format';
@@ -47,6 +47,7 @@ export default function PublicShell() {
   const [tournament, setTournament] = useState<TournamentResponse | null>(null);
   const [categories, setCategories] = useState<CategoryResponse[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -86,22 +87,62 @@ export default function PublicShell() {
     };
   }, [tournamentId]);
 
+  // Chiude il menu mobile ogni volta che si naviga verso una nuova rotta.
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
   const section = currentSection(location.pathname);
   const categoryId = currentCategoryId(location.pathname, tournamentId, section);
   const dataReady = tournamentId ? tournament !== null && categories !== null : true;
 
   return (
-    <div className="flex min-h-svh bg-slate-50 dark:bg-slate-900">
-      <aside className="flex w-64 shrink-0 flex-col gap-6 overflow-y-auto bg-slate-950 px-4 py-6 text-slate-100">
-        <Link to="/" className="flex items-center gap-3 px-1">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500">
-            <Trophy className="size-5 text-white" />
-          </span>
-          <span className="flex min-w-0 flex-col leading-tight">
-            <span className="font-heading truncate text-sm font-bold text-white">Olympus Tornei</span>
-            <span className="text-xs text-slate-400">Gestionale tornei padel</span>
-          </span>
-        </Link>
+    <div className="flex min-h-svh flex-col bg-slate-50 md:flex-row dark:bg-slate-900">
+      <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-slate-800 bg-slate-950 px-4 py-3 text-slate-100 md:hidden">
+        <button
+          type="button"
+          aria-label="Apri il menu"
+          className="flex size-8 items-center justify-center rounded-lg hover:bg-slate-800/60"
+          onClick={() => setMobileOpen(true)}
+        >
+          <Menu className="size-5" />
+        </button>
+        <span className="font-heading text-sm font-bold">Olympus Tornei</span>
+      </header>
+
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] shrink-0 -translate-x-full flex-col gap-6 overflow-y-auto bg-slate-950 px-4 py-6 text-slate-100 transition-transform duration-200 md:sticky md:top-0 md:h-svh md:w-64 md:max-w-none md:translate-x-0',
+          mobileOpen && 'translate-x-0',
+        )}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <Link to="/" className="flex min-w-0 items-center gap-3 px-1">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500">
+              <Trophy className="size-5 text-white" />
+            </span>
+            <span className="flex min-w-0 flex-col leading-tight">
+              <span className="font-heading truncate text-sm font-bold text-white">Olympus Tornei</span>
+              <span className="text-xs text-slate-400">Gestionale tornei padel</span>
+            </span>
+          </Link>
+          <button
+            type="button"
+            aria-label="Chiudi il menu"
+            className="flex size-8 shrink-0 items-center justify-center rounded-lg hover:bg-slate-800/60 md:hidden"
+            onClick={() => setMobileOpen(false)}
+          >
+            <X className="size-5" />
+          </button>
+        </div>
 
         <nav className="flex flex-col gap-1">
           <span className="px-2 text-xs font-semibold tracking-wider text-slate-500 uppercase">Tornei</span>
