@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { Trophy } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import { GradientBorder } from '../../components/GradientBorder';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import logoOlympus from '@/assets/LogoOlympus.png';
 
 export default function LoginPage() {
   const { token, login } = useAuth();
@@ -43,7 +43,7 @@ export default function LoginPage() {
         <Card className="ring-0">
           <CardHeader className="items-center text-center">
             <span className="mb-2 flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500">
-              <Trophy className="size-5.5 text-white" />
+              <img src={logoOlympus} alt="" className="size-7" />
             </span>
             <CardTitle className="text-xl">Olympus Tornei</CardTitle>
             <CardDescription>Accesso amministrazione</CardDescription>

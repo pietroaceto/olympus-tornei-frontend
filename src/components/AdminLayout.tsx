@@ -5,6 +5,7 @@ import { useAuth } from '../auth/AuthContext';
 import { Button } from './ui/button';
 import { sidebarNavItemActiveClass, sidebarNavItemClass } from '../lib/sidebarNav';
 import { cn } from '@/lib/utils';
+import logoOlympus from '@/assets/LogoOlympus.png';
 
 const NAV_ITEMS = [
   { to: '/admin', label: 'Tornei', icon: Trophy, end: true },
@@ -62,7 +63,7 @@ export default function AdminLayout() {
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3 px-1">
             <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500">
-              <Trophy className="size-5 text-white" />
+              <img src={logoOlympus} alt="" className="size-6" />
             </span>
             <span className="flex min-w-0 flex-col leading-tight">
               <span className="font-heading truncate text-sm font-bold text-white">Olympus Tornei</span>

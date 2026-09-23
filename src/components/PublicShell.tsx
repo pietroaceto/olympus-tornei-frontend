@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams, Outlet } from 'react-router-dom';
-import { CalendarDays, Home, ListOrdered, Menu, Network, Trophy, X } from 'lucide-react';
+import { CalendarDays, Home, ListOrdered, Menu, Network, X } from 'lucide-react';
 import { apiGet } from '../api/client';
 import type { CategoryResponse, TournamentResponse } from '../api/types';
 import { sortCategories } from '../lib/format';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { sidebarNavItemActiveClass, sidebarNavItemClass } from '../lib/sidebarNav';
 import { cn } from '@/lib/utils';
+import logoOlympus from '@/assets/LogoOlympus.png';
 
 export interface PublicOutletContext {
   allTournaments: TournamentResponse[];
@@ -127,7 +128,7 @@ export default function PublicShell() {
         <div className="flex items-center justify-between gap-3">
           <Link to="/" className="flex min-w-0 items-center gap-3 px-1">
             <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500">
-              <Trophy className="size-5 text-white" />
+              <img src={logoOlympus} alt="" className="size-6" />
             </span>
             <span className="flex min-w-0 flex-col leading-tight">
               <span className="font-heading truncate text-sm font-bold text-white">Olympus Tornei</span>
