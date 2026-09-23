@@ -77,11 +77,23 @@ export default function SchedulePage() {
                           disabled={!played}
                           onClick={() => navigate(`/tornei/${tournament?.id}/partita/${match.id}`)}
                         >
-                          <span className={cn('truncate', !played && 'text-muted-foreground')}>
+                          <span
+                            className={cn(
+                              'truncate',
+                              !played && 'text-muted-foreground',
+                              match.winnerTeamId !== null && match.winnerTeamId === match.homeTeamId && 'font-bold text-primary',
+                            )}
+                          >
                             {teamLabel(match.homeTeamName)}
                           </span>
                           <span className="text-center text-sm text-muted-foreground">vs</span>
-                          <span className={cn('truncate', !played && 'text-muted-foreground')}>
+                          <span
+                            className={cn(
+                              'truncate',
+                              !played && 'text-muted-foreground',
+                              match.winnerTeamId !== null && match.winnerTeamId === match.awayTeamId && 'font-bold text-primary',
+                            )}
+                          >
                             {teamLabel(match.awayTeamName)}
                           </span>
                           <Badge variant={played ? 'default' : 'outline'}>{matchStatusLabel(match.status)}</Badge>

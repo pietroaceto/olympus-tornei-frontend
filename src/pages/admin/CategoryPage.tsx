@@ -33,6 +33,7 @@ import { Card, CardAction, CardContent, CardHeader, CardTitle } from '../../comp
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
+import { cn } from '@/lib/utils';
 
 function TeamCard({
   team,
@@ -520,9 +521,23 @@ export default function CategoryPage() {
                                 onClick={() => setEditingMatchId(match.id)}
                                 className="grid w-full grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-xl bg-card px-4 py-3 text-left text-card-foreground"
                               >
-                                <span className="truncate">{teamLabel(match.homeTeamName)}</span>
+                                <span
+                                  className={cn(
+                                    'truncate',
+                                    match.winnerTeamId !== null && match.winnerTeamId === match.homeTeamId && 'font-bold text-primary',
+                                  )}
+                                >
+                                  {teamLabel(match.homeTeamName)}
+                                </span>
                                 <span className="text-center text-sm text-muted-foreground">vs</span>
-                                <span className="truncate">{teamLabel(match.awayTeamName)}</span>
+                                <span
+                                  className={cn(
+                                    'truncate',
+                                    match.winnerTeamId !== null && match.winnerTeamId === match.awayTeamId && 'font-bold text-primary',
+                                  )}
+                                >
+                                  {teamLabel(match.awayTeamName)}
+                                </span>
                                 <Badge variant={match.status === 'PLAYED' ? 'default' : 'outline'}>
                                   {matchStatusLabel(match.status)}
                                 </Badge>

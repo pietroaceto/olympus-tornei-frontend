@@ -43,6 +43,8 @@ export interface MatchResponse {
   awayTeamId: number | null;
   awayTeamName: string | null;
   status: MatchStatus;
+  resultType: MatchResultType | null;
+  winnerTeamId: number | null;
 }
 
 export interface RoundResponse {
