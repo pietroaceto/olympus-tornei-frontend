@@ -2,6 +2,10 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
+## Note di sviluppo
+
+- Tutte le modifiche grafiche riguardanti i colori (bordi, sfondi, gradienti, ecc.) devono essere effettuate anche per la versione mobile, non solo per quella desktop.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)

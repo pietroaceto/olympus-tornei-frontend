@@ -18,14 +18,21 @@ export default function CategoryTabs({
           to={`${basePath}/${cat.id}`}
           className={({ isActive }) =>
             cn(
-              'inline-block rounded-full border px-5 py-2 font-semibold transition-colors',
-              isActive
-                ? 'border-transparent bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white'
-                : 'bg-background text-foreground hover:bg-muted',
+              'inline-block rounded-full p-[1.5px] transition-colors',
+              isActive ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600' : 'bg-border',
             )
           }
         >
-          {categoryLabel(cat.name)}
+          {({ isActive }) => (
+            <span
+              className={cn(
+                'block rounded-full bg-background px-5 py-2 font-semibold text-foreground transition-colors',
+                !isActive && 'hover:bg-muted',
+              )}
+            >
+              {categoryLabel(cat.name)}
+            </span>
+          )}
         </NavLink>
       ))}
     </nav>
