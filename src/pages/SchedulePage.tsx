@@ -2,13 +2,11 @@ import { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import { apiGet } from '../api/client';
 import type { RoundResponse } from '../api/types';
-import { matchStatusLabel, teamLabel } from '../lib/format';
 import { resolveActiveCategory } from '../lib/categorySelection';
 import type { PublicOutletContext } from '../components/PublicShell';
 import CategoryTabs from '../components/CategoryTabs';
 import { GradientBorder } from '../components/GradientBorder';
-import { Badge } from '../components/ui/badge';
-import { cn } from '@/lib/utils';
+import { MatchScoreRow } from '../components/MatchScoreRow';
 
 export default function SchedulePage() {
   const { tournament, categories } = useOutletContext<PublicOutletContext>();
@@ -73,37 +71,11 @@ export default function SchedulePage() {
                       <GradientBorder>
                         <button
                           type="button"
-                          className="grid w-full grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-xl bg-card px-4 py-3 text-left text-card-foreground disabled:cursor-default"
+                          className="w-full rounded-xl bg-card px-4 py-3 text-left text-card-foreground disabled:cursor-default"
                           disabled={!played}
                           onClick={() => navigate(`/tornei/${tournament?.id}/partita/${match.id}`)}
                         >
-                          <span
-                            className={cn(
-                              'truncate',
-                              !played && 'text-muted-foreground',
-                              match.winnerTeamId !== null && match.winnerTeamId === match.homeTeamId && 'font-bold text-primary',
-                            )}
-                          >
-                            {teamLabel(match.homeTeamName)}
-                          </span>
-                          <span
-                            className={cn(
-                              'text-center text-sm',
-                              match.resultSummary ? 'font-semibold text-foreground' : 'text-muted-foreground',
-                            )}
-                          >
-                            {match.resultSummary ?? 'vs'}
-                          </span>
-                          <span
-                            className={cn(
-                              'truncate',
-                              !played && 'text-muted-foreground',
-                              match.winnerTeamId !== null && match.winnerTeamId === match.awayTeamId && 'font-bold text-primary',
-                            )}
-                          >
-                            {teamLabel(match.awayTeamName)}
-                          </span>
-                          <Badge variant={played ? 'default' : 'outline'}>{matchStatusLabel(match.status)}</Badge>
+                          <MatchScoreRow match={match} />
                         </button>
                       </GradientBorder>
                     </li>

@@ -15,25 +15,22 @@ import {
   categoryLabel,
   competitionFormatLabel,
   matchFormatLabel,
-  matchStatusLabel,
   phaseLabel,
-  teamLabel,
 } from '../../lib/format';
 import { adminErrorMessage } from '../../lib/adminError';
 import { nextPowerOfTwo } from '../../lib/bracket';
 import { useAuth } from '../../auth/AuthContext';
 import Bracket from '../../components/Bracket';
 import { GradientBorder } from '../../components/GradientBorder';
+import { MatchScoreRow } from '../../components/MatchScoreRow';
 import { MatchResultForm } from '../../components/admin/MatchResultForm';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
-import { Badge } from '../../components/ui/badge';
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
-import { cn } from '@/lib/utils';
 
 function TeamCard({
   team,
@@ -519,35 +516,9 @@ export default function CategoryPage() {
                               <button
                                 type="button"
                                 onClick={() => setEditingMatchId(match.id)}
-                                className="grid w-full grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-xl bg-card px-4 py-3 text-left text-card-foreground"
+                                className="w-full rounded-xl bg-card px-4 py-3 text-left text-card-foreground"
                               >
-                                <span
-                                  className={cn(
-                                    'truncate',
-                                    match.winnerTeamId !== null && match.winnerTeamId === match.homeTeamId && 'font-bold text-primary',
-                                  )}
-                                >
-                                  {teamLabel(match.homeTeamName)}
-                                </span>
-                                <span
-                                  className={cn(
-                                    'text-center text-sm',
-                                    match.resultSummary ? 'font-semibold text-foreground' : 'text-muted-foreground',
-                                  )}
-                                >
-                                  {match.resultSummary ?? 'vs'}
-                                </span>
-                                <span
-                                  className={cn(
-                                    'truncate',
-                                    match.winnerTeamId !== null && match.winnerTeamId === match.awayTeamId && 'font-bold text-primary',
-                                  )}
-                                >
-                                  {teamLabel(match.awayTeamName)}
-                                </span>
-                                <Badge variant={match.status === 'PLAYED' ? 'default' : 'outline'}>
-                                  {matchStatusLabel(match.status)}
-                                </Badge>
+                                <MatchScoreRow match={match} />
                               </button>
                             </GradientBorder>
                           </li>

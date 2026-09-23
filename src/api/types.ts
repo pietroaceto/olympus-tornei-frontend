@@ -36,6 +36,11 @@ export interface TeamResponse {
   players: PlayerResponse[];
 }
 
+export interface MatchSubMatchScoreResponse {
+  ordine: number;
+  sets: SetScoreResponse[];
+}
+
 export interface MatchResponse {
   id: number;
   homeTeamId: number | null;
@@ -45,7 +50,7 @@ export interface MatchResponse {
   status: MatchStatus;
   resultType: MatchResultType | null;
   winnerTeamId: number | null;
-  resultSummary: string | null;
+  subMatches: MatchSubMatchScoreResponse[];
 }
 
 export interface RoundResponse {
