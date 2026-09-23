@@ -100,72 +100,76 @@ function TeamCard({
   }
 
   return (
-    <li className="rounded-xl border bg-card p-3 text-card-foreground">
-      {editingName ? (
-        <form className="mb-2 flex flex-wrap items-center gap-2" onSubmit={handleRenameTeam}>
-          <Input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} autoFocus className="h-8 w-auto" />
-          <Button type="submit" size="sm">
-            Salva
-          </Button>
-          <Button type="button" size="sm" variant="ghost" onClick={() => setEditingName(false)}>
-            Annulla
-          </Button>
-        </form>
-      ) : (
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <strong>{team.name}</strong>
-          {!locked && (
-            <div className="flex gap-2">
-              <Button type="button" size="sm" variant="ghost" onClick={() => setEditingName(true)}>
-                Rinomina
+    <li>
+      <GradientBorder className="h-full">
+        <div className="h-full rounded-xl bg-card p-3 text-card-foreground">
+          {editingName ? (
+            <form className="mb-2 flex flex-wrap items-center gap-2" onSubmit={handleRenameTeam}>
+              <Input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} autoFocus className="h-8 w-auto" />
+              <Button type="submit" size="sm">
+                Salva
               </Button>
-              <Button type="button" size="sm" variant="destructive" onClick={() => setConfirmDelete(true)}>
-                Elimina
+              <Button type="button" size="sm" variant="ghost" onClick={() => setEditingName(false)}>
+                Annulla
               </Button>
+            </form>
+          ) : (
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <strong>{team.name}</strong>
+              {!locked && (
+                <div className="flex gap-2">
+                  <Button type="button" size="sm" variant="ghost" onClick={() => setEditingName(true)}>
+                    Rinomina
+                  </Button>
+                  <Button type="button" size="sm" variant="destructive" onClick={() => setConfirmDelete(true)}>
+                    Elimina
+                  </Button>
+                </div>
+              )}
             </div>
           )}
-        </div>
-      )}
 
-      <ul className="mb-2 flex flex-col gap-1">
-        {team.players.map((p) => (
-          <li key={p.id} className="flex items-center justify-between text-sm">
-            <span>{p.name}</span>
-            {!locked && (
-              <button
-                type="button"
-                className="text-xs font-medium text-destructive hover:underline"
-                onClick={() => handleDeletePlayer(p)}
-              >
-                rimuovi
-              </button>
-            )}
-          </li>
-        ))}
-      </ul>
+          <ul className="mb-2 flex flex-col gap-1">
+            {team.players.map((p) => (
+              <li key={p.id} className="flex items-center justify-between text-sm">
+                <span>{p.name}</span>
+                {!locked && (
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-destructive hover:underline"
+                    onClick={() => handleDeletePlayer(p)}
+                  >
+                    rimuovi
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
 
-      {!locked && (
-        <form className="flex flex-wrap items-center gap-2" onSubmit={handleAddPlayer}>
-          <Input
-            placeholder="Nome giocatore"
-            value={newPlayerName}
-            onChange={(e) => setNewPlayerName(e.target.value)}
-            className="h-8 w-auto"
+          {!locked && (
+            <form className="flex flex-wrap items-center gap-2" onSubmit={handleAddPlayer}>
+              <Input
+                placeholder="Nome giocatore"
+                value={newPlayerName}
+                onChange={(e) => setNewPlayerName(e.target.value)}
+                className="h-8 w-auto"
+              />
+              <Button type="submit" size="sm">
+                Aggiungi
+              </Button>
+            </form>
+          )}
+
+          <ConfirmDialog
+            open={confirmDelete}
+            onOpenChange={setConfirmDelete}
+            title="Eliminare la squadra?"
+            description={`"${team.name}" e la sua rosa verranno eliminati definitivamente.`}
+            confirmLabel="Elimina"
+            onConfirm={handleDeleteTeam}
           />
-          <Button type="submit" size="sm">
-            Aggiungi
-          </Button>
-        </form>
-      )}
-
-      <ConfirmDialog
-        open={confirmDelete}
-        onOpenChange={setConfirmDelete}
-        title="Eliminare la squadra?"
-        description={`"${team.name}" e la sua rosa verranno eliminati definitivamente.`}
-        confirmLabel="Elimina"
-        onConfirm={handleDeleteTeam}
-      />
+        </div>
+      </GradientBorder>
     </li>
   );
 }
@@ -508,17 +512,19 @@ export default function CategoryPage() {
                       <ul className="flex flex-col gap-2">
                         {round.matches.map((match) => (
                           <li key={match.id}>
-                            <Link
-                              to={`/admin/partite/${match.id}`}
-                              className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-xl border bg-card px-4 py-3 text-card-foreground"
-                            >
-                              <span className="truncate">{teamLabel(match.homeTeamName)}</span>
-                              <span className="text-center text-sm text-muted-foreground">vs</span>
-                              <span className="truncate">{teamLabel(match.awayTeamName)}</span>
-                              <Badge variant={match.status === 'PLAYED' ? 'default' : 'outline'}>
-                                {matchStatusLabel(match.status)}
-                              </Badge>
-                            </Link>
+                            <GradientBorder>
+                              <Link
+                                to={`/admin/partite/${match.id}`}
+                                className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-xl bg-card px-4 py-3 text-card-foreground"
+                              >
+                                <span className="truncate">{teamLabel(match.homeTeamName)}</span>
+                                <span className="text-center text-sm text-muted-foreground">vs</span>
+                                <span className="truncate">{teamLabel(match.awayTeamName)}</span>
+                                <Badge variant={match.status === 'PLAYED' ? 'default' : 'outline'}>
+                                  {matchStatusLabel(match.status)}
+                                </Badge>
+                              </Link>
+                            </GradientBorder>
                           </li>
                         ))}
                       </ul>

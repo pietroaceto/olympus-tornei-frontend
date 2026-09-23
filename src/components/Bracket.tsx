@@ -1,5 +1,6 @@
 import type { BracketRoundResponse } from '../api/types';
 import { teamLabel } from '../lib/format';
+import { GradientBorder } from './GradientBorder';
 import { cn } from '@/lib/utils';
 
 function roundName(roundIndex: number, totalRounds: number): string {
@@ -36,39 +37,40 @@ export default function Bracket({
           </div>
           <div className="flex flex-1 flex-col justify-around gap-5">
             {round.matches.map((match) => (
-              <button
-                key={match.matchId}
-                type="button"
-                className={cn(
-                  'relative flex w-full flex-col overflow-hidden rounded-lg border bg-card text-left disabled:cursor-default',
-                  roundPos < rounds.length - 1 &&
-                    "after:absolute after:top-1/2 after:right-[-21px] after:h-px after:w-5 after:bg-border after:content-['']",
-                  roundPos > 0 &&
-                    "before:absolute before:top-1/2 before:left-[-21px] before:h-px before:w-5 before:bg-border before:content-['']",
-                )}
-                disabled={isMatchClickable ? !isMatchClickable(match) : false}
-                onClick={() => onMatchClick(match.matchId)}
-              >
-                <span
+              <GradientBorder key={match.matchId} className="rounded-lg">
+                <button
+                  type="button"
                   className={cn(
-                    'truncate px-3 py-2 text-sm',
-                    match.homeTeamName === null && 'text-muted-foreground italic',
-                    match.winnerTeamId !== null && match.winnerTeamId === match.homeTeamId && 'font-bold text-primary',
+                    'relative flex w-full flex-col overflow-hidden rounded-lg bg-card text-left disabled:cursor-default',
+                    roundPos < rounds.length - 1 &&
+                      "after:absolute after:top-1/2 after:right-[-21px] after:h-px after:w-5 after:bg-border after:content-['']",
+                    roundPos > 0 &&
+                      "before:absolute before:top-1/2 before:left-[-21px] before:h-px before:w-5 before:bg-border before:content-['']",
                   )}
+                  disabled={isMatchClickable ? !isMatchClickable(match) : false}
+                  onClick={() => onMatchClick(match.matchId)}
                 >
-                  {teamLabel(match.homeTeamName)}
-                </span>
-                <span className="h-px bg-border" />
-                <span
-                  className={cn(
-                    'truncate px-3 py-2 text-sm',
-                    match.awayTeamName === null && 'text-muted-foreground italic',
-                    match.winnerTeamId !== null && match.winnerTeamId === match.awayTeamId && 'font-bold text-primary',
-                  )}
-                >
-                  {teamLabel(match.awayTeamName)}
-                </span>
-              </button>
+                  <span
+                    className={cn(
+                      'truncate px-3 py-2 text-sm',
+                      match.homeTeamName === null && 'text-muted-foreground italic',
+                      match.winnerTeamId !== null && match.winnerTeamId === match.homeTeamId && 'font-bold text-primary',
+                    )}
+                  >
+                    {teamLabel(match.homeTeamName)}
+                  </span>
+                  <span className="h-px bg-border" />
+                  <span
+                    className={cn(
+                      'truncate px-3 py-2 text-sm',
+                      match.awayTeamName === null && 'text-muted-foreground italic',
+                      match.winnerTeamId !== null && match.winnerTeamId === match.awayTeamId && 'font-bold text-primary',
+                    )}
+                  >
+                    {teamLabel(match.awayTeamName)}
+                  </span>
+                </button>
+              </GradientBorder>
             ))}
           </div>
         </div>

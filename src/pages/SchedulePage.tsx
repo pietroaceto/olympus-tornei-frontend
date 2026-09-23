@@ -6,6 +6,7 @@ import { matchStatusLabel, teamLabel } from '../lib/format';
 import { resolveActiveCategory } from '../lib/categorySelection';
 import type { PublicOutletContext } from '../components/PublicShell';
 import CategoryTabs from '../components/CategoryTabs';
+import { GradientBorder } from '../components/GradientBorder';
 import { Badge } from '../components/ui/badge';
 
 export default function SchedulePage() {
@@ -66,19 +67,21 @@ export default function SchedulePage() {
               <ul className="flex flex-col gap-2">
                 {round.matches.map((match) => (
                   <li key={match.id}>
-                    <button
-                      type="button"
-                      className="grid w-full grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-xl border bg-card px-4 py-3 text-left text-card-foreground disabled:cursor-default disabled:opacity-75"
-                      disabled={match.status !== 'PLAYED'}
-                      onClick={() => navigate(`/tornei/${tournament?.id}/partita/${match.id}`)}
-                    >
-                      <span className="truncate">{teamLabel(match.homeTeamName)}</span>
-                      <span className="text-center text-sm text-muted-foreground">vs</span>
-                      <span className="truncate">{teamLabel(match.awayTeamName)}</span>
-                      <Badge variant={match.status === 'PLAYED' ? 'default' : 'outline'}>
-                        {matchStatusLabel(match.status)}
-                      </Badge>
-                    </button>
+                    <GradientBorder>
+                      <button
+                        type="button"
+                        className="grid w-full grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-xl bg-card px-4 py-3 text-left text-card-foreground disabled:cursor-default disabled:opacity-75"
+                        disabled={match.status !== 'PLAYED'}
+                        onClick={() => navigate(`/tornei/${tournament?.id}/partita/${match.id}`)}
+                      >
+                        <span className="truncate">{teamLabel(match.homeTeamName)}</span>
+                        <span className="text-center text-sm text-muted-foreground">vs</span>
+                        <span className="truncate">{teamLabel(match.awayTeamName)}</span>
+                        <Badge variant={match.status === 'PLAYED' ? 'default' : 'outline'}>
+                          {matchStatusLabel(match.status)}
+                        </Badge>
+                      </button>
+                    </GradientBorder>
                   </li>
                 ))}
               </ul>

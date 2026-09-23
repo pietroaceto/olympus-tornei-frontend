@@ -16,6 +16,7 @@ import { resultTypeLabel, teamLabel } from '../../lib/format';
 import { adminErrorMessage } from '../../lib/adminError';
 import { activeSets, determineSingleResult, emptySets, padSets } from '../../lib/setScoring';
 import { useAuth } from '../../auth/AuthContext';
+import { GradientBorder } from '../../components/GradientBorder';
 import { Button } from '../../components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -230,111 +231,113 @@ export default function MatchResultPage() {
                 Sotto-partita {subIndex + 1}
               </div>
             )}
-            <div className="overflow-hidden rounded-2xl border bg-card text-card-foreground">
-              <div className="flex flex-wrap items-center justify-between gap-4 px-4.5 py-3.5">
-                <div className="flex min-w-0 items-center gap-4">
-                  <span className="truncate text-sm font-bold uppercase">{match.homeTeamName}</span>
-                  <div className="flex flex-col gap-0.5">
-                    <select
-                      className={playerSelectClass}
-                      value={sm.homePlayer1Id}
-                      onChange={(e) => updateSubMatch(subIndex, { homePlayer1Id: Number(e.target.value) })}
-                      required
-                    >
-                      <option value="" disabled>
-                        Giocatore 1
-                      </option>
-                      {homeTeam.players.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name}
+            <GradientBorder className="rounded-2xl">
+              <div className="overflow-hidden rounded-2xl bg-card text-card-foreground">
+                <div className="flex flex-wrap items-center justify-between gap-4 px-4.5 py-3.5">
+                  <div className="flex min-w-0 items-center gap-4">
+                    <span className="truncate text-sm font-bold uppercase">{match.homeTeamName}</span>
+                    <div className="flex flex-col gap-0.5">
+                      <select
+                        className={playerSelectClass}
+                        value={sm.homePlayer1Id}
+                        onChange={(e) => updateSubMatch(subIndex, { homePlayer1Id: Number(e.target.value) })}
+                        required
+                      >
+                        <option value="" disabled>
+                          Giocatore 1
                         </option>
-                      ))}
-                    </select>
-                    <select
-                      className={playerSelectClass}
-                      value={sm.homePlayer2Id}
-                      onChange={(e) => updateSubMatch(subIndex, { homePlayer2Id: Number(e.target.value) })}
-                      required
-                    >
-                      <option value="" disabled>
-                        Giocatore 2
-                      </option>
-                      {homeTeam.players.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name}
+                        {homeTeam.players.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        className={playerSelectClass}
+                        value={sm.homePlayer2Id}
+                        onChange={(e) => updateSubMatch(subIndex, { homePlayer2Id: Number(e.target.value) })}
+                        required
+                      >
+                        <option value="" disabled>
+                          Giocatore 2
                         </option>
-                      ))}
-                    </select>
+                        {homeTeam.players.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 gap-5">
+                    {sm.sets.map((set, setIndex) => (
+                      <input
+                        key={setIndex}
+                        className={scoreInputClass}
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={set.homeGames}
+                        onChange={(e) => updateSet(subIndex, setIndex, { homeGames: sanitizeGames(e.target.value) })}
+                      />
+                    ))}
                   </div>
                 </div>
-                <div className="flex shrink-0 gap-5">
-                  {sm.sets.map((set, setIndex) => (
-                    <input
-                      key={setIndex}
-                      className={scoreInputClass}
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={set.homeGames}
-                      onChange={(e) => updateSet(subIndex, setIndex, { homeGames: sanitizeGames(e.target.value) })}
-                    />
-                  ))}
-                </div>
-              </div>
 
-              <div className="h-px bg-border" />
+                <div className="h-px bg-border" />
 
-              <div className="flex flex-wrap items-center justify-between gap-4 px-4.5 py-3.5">
-                <div className="flex min-w-0 items-center gap-4">
-                  <span className="truncate text-sm font-bold uppercase">{match.awayTeamName}</span>
-                  <div className="flex flex-col gap-0.5">
-                    <select
-                      className={playerSelectClass}
-                      value={sm.awayPlayer1Id}
-                      onChange={(e) => updateSubMatch(subIndex, { awayPlayer1Id: Number(e.target.value) })}
-                      required
-                    >
-                      <option value="" disabled>
-                        Giocatore 1
-                      </option>
-                      {awayTeam.players.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name}
+                <div className="flex flex-wrap items-center justify-between gap-4 px-4.5 py-3.5">
+                  <div className="flex min-w-0 items-center gap-4">
+                    <span className="truncate text-sm font-bold uppercase">{match.awayTeamName}</span>
+                    <div className="flex flex-col gap-0.5">
+                      <select
+                        className={playerSelectClass}
+                        value={sm.awayPlayer1Id}
+                        onChange={(e) => updateSubMatch(subIndex, { awayPlayer1Id: Number(e.target.value) })}
+                        required
+                      >
+                        <option value="" disabled>
+                          Giocatore 1
                         </option>
-                      ))}
-                    </select>
-                    <select
-                      className={playerSelectClass}
-                      value={sm.awayPlayer2Id}
-                      onChange={(e) => updateSubMatch(subIndex, { awayPlayer2Id: Number(e.target.value) })}
-                      required
-                    >
-                      <option value="" disabled>
-                        Giocatore 2
-                      </option>
-                      {awayTeam.players.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name}
+                        {awayTeam.players.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        className={playerSelectClass}
+                        value={sm.awayPlayer2Id}
+                        onChange={(e) => updateSubMatch(subIndex, { awayPlayer2Id: Number(e.target.value) })}
+                        required
+                      >
+                        <option value="" disabled>
+                          Giocatore 2
                         </option>
-                      ))}
-                    </select>
+                        {awayTeam.players.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 gap-5">
+                    {sm.sets.map((set, setIndex) => (
+                      <input
+                        key={setIndex}
+                        className={scoreInputClass}
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={set.awayGames}
+                        onChange={(e) => updateSet(subIndex, setIndex, { awayGames: sanitizeGames(e.target.value) })}
+                      />
+                    ))}
                   </div>
                 </div>
-                <div className="flex shrink-0 gap-5">
-                  {sm.sets.map((set, setIndex) => (
-                    <input
-                      key={setIndex}
-                      className={scoreInputClass}
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={set.awayGames}
-                      onChange={(e) => updateSet(subIndex, setIndex, { awayGames: sanitizeGames(e.target.value) })}
-                    />
-                  ))}
-                </div>
               </div>
-            </div>
+            </GradientBorder>
           </div>
         ))}
 
@@ -347,51 +350,53 @@ export default function MatchResultPage() {
               : (singleResult?.error ?? 'Inserisci i punteggi dei set.')}
           </p>
         ) : (
-          <fieldset className="w-full rounded-xl border bg-card p-4 text-card-foreground">
-            <legend className="px-1 text-sm font-medium">Esito finale</legend>
-            <div className="flex flex-col gap-2">
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="resultType"
-                  className="accent-primary"
-                  checked={resultType === 'WIN_HOME'}
-                  onChange={() => setResultType('WIN_HOME')}
-                />
-                Vittoria {match.homeTeamName}
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="resultType"
-                  className="accent-primary"
-                  checked={resultType === 'WIN_HOME_TB'}
-                  onChange={() => setResultType('WIN_HOME_TB')}
-                />
-                Vittoria {match.homeTeamName} al tie-break
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="resultType"
-                  className="accent-primary"
-                  checked={resultType === 'WIN_AWAY'}
-                  onChange={() => setResultType('WIN_AWAY')}
-                />
-                Vittoria {match.awayTeamName}
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="resultType"
-                  className="accent-primary"
-                  checked={resultType === 'WIN_AWAY_TB'}
-                  onChange={() => setResultType('WIN_AWAY_TB')}
-                />
-                Vittoria {match.awayTeamName} al tie-break
-              </label>
-            </div>
-          </fieldset>
+          <GradientBorder className="w-full">
+            <fieldset className="w-full rounded-xl bg-card p-4 text-card-foreground">
+              <legend className="px-1 text-sm font-medium">Esito finale</legend>
+              <div className="flex flex-col gap-2">
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="radio"
+                    name="resultType"
+                    className="accent-primary"
+                    checked={resultType === 'WIN_HOME'}
+                    onChange={() => setResultType('WIN_HOME')}
+                  />
+                  Vittoria {match.homeTeamName}
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="radio"
+                    name="resultType"
+                    className="accent-primary"
+                    checked={resultType === 'WIN_HOME_TB'}
+                    onChange={() => setResultType('WIN_HOME_TB')}
+                  />
+                  Vittoria {match.homeTeamName} al tie-break
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="radio"
+                    name="resultType"
+                    className="accent-primary"
+                    checked={resultType === 'WIN_AWAY'}
+                    onChange={() => setResultType('WIN_AWAY')}
+                  />
+                  Vittoria {match.awayTeamName}
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="radio"
+                    name="resultType"
+                    className="accent-primary"
+                    checked={resultType === 'WIN_AWAY_TB'}
+                    onChange={() => setResultType('WIN_AWAY_TB')}
+                  />
+                  Vittoria {match.awayTeamName} al tie-break
+                </label>
+              </div>
+            </fieldset>
+          </GradientBorder>
         )}
 
         <div className="flex gap-2">
