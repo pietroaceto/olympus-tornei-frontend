@@ -43,6 +43,9 @@ export default function AdminLayout() {
         >
           <Menu className="size-5" />
         </button>
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500">
+          <img src={logoOlympus} alt="" className="size-4.5" />
+        </span>
         <span className="font-heading text-sm font-bold">Olympus Tornei</span>
       </header>
 
