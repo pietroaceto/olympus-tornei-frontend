@@ -24,6 +24,7 @@ import { nextPowerOfTwo } from '../../lib/bracket';
 import { useAuth } from '../../auth/AuthContext';
 import Bracket from '../../components/Bracket';
 import { GradientBorder } from '../../components/GradientBorder';
+import { MatchResultForm } from '../../components/admin/MatchResultForm';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -273,6 +274,7 @@ export default function CategoryPage() {
   const [busy, setBusy] = useState(false);
   const [confirmResetSchedule, setConfirmResetSchedule] = useState(false);
   const [confirmResetBracket, setConfirmResetBracket] = useState(false);
+  const [editingMatchId, setEditingMatchId] = useState<number | null>(null);
 
   function onUnauthorized() {
     logout();
@@ -513,9 +515,10 @@ export default function CategoryPage() {
                         {round.matches.map((match) => (
                           <li key={match.id}>
                             <GradientBorder>
-                              <Link
-                                to={`/admin/partite/${match.id}`}
-                                className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-xl bg-card px-4 py-3 text-card-foreground"
+                              <button
+                                type="button"
+                                onClick={() => setEditingMatchId(match.id)}
+                                className="grid w-full grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-xl bg-card px-4 py-3 text-left text-card-foreground"
                               >
                                 <span className="truncate">{teamLabel(match.homeTeamName)}</span>
                                 <span className="text-center text-sm text-muted-foreground">vs</span>
@@ -523,7 +526,7 @@ export default function CategoryPage() {
                                 <Badge variant={match.status === 'PLAYED' ? 'default' : 'outline'}>
                                   {matchStatusLabel(match.status)}
                                 </Badge>
-                              </Link>
+                              </button>
                             </GradientBorder>
                           </li>
                         ))}
@@ -626,6 +629,24 @@ export default function CategoryPage() {
         confirmLabel="Azzera"
         onConfirm={handleResetBracket}
       />
+
+      <Dialog open={editingMatchId !== null} onOpenChange={(open) => !open && setEditingMatchId(null)}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Risultato partita</DialogTitle>
+          </DialogHeader>
+          {editingMatchId !== null && (
+            <MatchResultForm
+              matchId={editingMatchId}
+              onUnauthorized={onUnauthorized}
+              onSaved={() => {
+                setEditingMatchId(null);
+                load();
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
