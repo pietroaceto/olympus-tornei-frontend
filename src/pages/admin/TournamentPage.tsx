@@ -127,24 +127,28 @@ export default function TournamentPage() {
       ) : (
         <ul className="flex flex-col gap-2">
           {categories.map((cat) => (
-            <li key={cat.id} className="flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3">
-              <Link to={`/admin/categorie/${cat.id}`} className="font-semibold hover:underline">
-                {categoryLabel(cat.name)}
-              </Link>
-              <span className="mr-auto text-sm text-muted-foreground">
-                {competitionFormatLabel(cat.competitionFormat)} · {matchFormatLabel(cat.matchFormat)} ·{' '}
-                {phaseLabel(cat.phase)}
-              </span>
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                disabled={cat.scheduleLocked}
-                title={cat.scheduleLocked ? 'Categoria bloccata: già in corso' : undefined}
-                onClick={() => setDeleteTarget(cat)}
-              >
-                Elimina
-              </Button>
+            <li key={cat.id}>
+              <GradientBorder>
+                <div className="flex flex-wrap items-center gap-3 rounded-xl bg-card px-4 py-3 text-card-foreground">
+                  <Link to={`/admin/categorie/${cat.id}`} className="font-semibold hover:underline">
+                    {categoryLabel(cat.name)}
+                  </Link>
+                  <span className="mr-auto text-sm text-muted-foreground">
+                    {competitionFormatLabel(cat.competitionFormat)} · {matchFormatLabel(cat.matchFormat)} ·{' '}
+                    {phaseLabel(cat.phase)}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    disabled={cat.scheduleLocked}
+                    title={cat.scheduleLocked ? 'Categoria bloccata: già in corso' : undefined}
+                    onClick={() => setDeleteTarget(cat)}
+                  >
+                    Elimina
+                  </Button>
+                </div>
+              </GradientBorder>
             </li>
           ))}
         </ul>

@@ -148,17 +148,21 @@ export default function DashboardPage() {
       ) : (
         <ul className="flex flex-col gap-2">
           {sortedTournaments.map((t) => (
-            <li key={t.id} className="flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3">
-              <Link to={`/admin/tornei/${t.id}`} className="font-semibold hover:underline">
-                {t.name}
-              </Link>
-              <span className="mr-auto flex items-center gap-2 text-sm text-muted-foreground">
-                {t.season}
-                <Badge variant="secondary">{tournamentStatusLabel(t.status)}</Badge>
-              </span>
-              <Button type="button" variant="destructive" size="sm" onClick={() => setDeleteTarget(t)}>
-                Elimina
-              </Button>
+            <li key={t.id}>
+              <GradientBorder>
+                <div className="flex flex-wrap items-center gap-3 rounded-xl bg-card px-4 py-3 text-card-foreground">
+                  <Link to={`/admin/tornei/${t.id}`} className="font-semibold hover:underline">
+                    {t.name}
+                  </Link>
+                  <span className="mr-auto flex items-center gap-2 text-sm text-muted-foreground">
+                    {t.season}
+                    <Badge variant="secondary">{tournamentStatusLabel(t.status)}</Badge>
+                  </span>
+                  <Button type="button" variant="destructive" size="sm" onClick={() => setDeleteTarget(t)}>
+                    Elimina
+                  </Button>
+                </div>
+              </GradientBorder>
             </li>
           ))}
         </ul>
