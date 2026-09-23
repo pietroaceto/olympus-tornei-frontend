@@ -45,6 +45,7 @@ export interface MatchResponse {
   status: MatchStatus;
   resultType: MatchResultType | null;
   winnerTeamId: number | null;
+  resultSummary: string | null;
 }
 
 export interface RoundResponse {

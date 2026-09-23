@@ -86,7 +86,14 @@ export default function SchedulePage() {
                           >
                             {teamLabel(match.homeTeamName)}
                           </span>
-                          <span className="text-center text-sm text-muted-foreground">vs</span>
+                          <span
+                            className={cn(
+                              'text-center text-sm',
+                              match.resultSummary ? 'font-semibold text-foreground' : 'text-muted-foreground',
+                            )}
+                          >
+                            {match.resultSummary ?? 'vs'}
+                          </span>
                           <span
                             className={cn(
                               'truncate',
