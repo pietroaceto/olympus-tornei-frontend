@@ -8,6 +8,7 @@ import type { TournamentRequest, TournamentResponse, TournamentStatus } from '..
 import { tournamentStatusLabel } from '../../lib/format';
 import { adminErrorMessage } from '../../lib/adminError';
 import { useAuth } from '../../auth/AuthContext';
+import { GradientBorder } from '../../components/GradientBorder';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -93,49 +94,51 @@ export default function DashboardPage() {
       </div>
 
       {showCreateForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Nuovo torneo</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form className="flex flex-col items-start gap-3" onSubmit={handleCreate}>
-              <div className="flex w-full max-w-90 flex-col gap-1.5">
-                <Label htmlFor="tournament-name">Nome</Label>
-                <Input id="tournament-name" value={name} onChange={(e) => setName(e.target.value)} required autoFocus />
-              </div>
-              <div className="flex w-full max-w-90 flex-col gap-1.5">
-                <Label htmlFor="tournament-season">Stagione</Label>
-                <Input
-                  id="tournament-season"
-                  value={season}
-                  onChange={(e) => setSeason(e.target.value)}
-                  placeholder="es. 2026"
-                />
-              </div>
-              <div className="flex w-full max-w-90 flex-col gap-1.5">
-                <Label>Stato</Label>
-                <Select value={status} onValueChange={(v) => setStatus(v as TournamentStatus)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="DRAFT">Bozza</SelectItem>
-                    <SelectItem value="ACTIVE">In corso</SelectItem>
-                    <SelectItem value="COMPLETED">Concluso</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex gap-2">
-                <Button type="submit" disabled={submitting}>
-                  Crea torneo
-                </Button>
-                <Button type="button" variant="ghost" onClick={() => setShowCreateForm(false)}>
-                  Annulla
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+        <GradientBorder>
+          <Card className="ring-0">
+            <CardHeader>
+              <CardTitle className="text-base">Nuovo torneo</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form className="flex flex-col items-start gap-3" onSubmit={handleCreate}>
+                <div className="flex w-full max-w-90 flex-col gap-1.5">
+                  <Label htmlFor="tournament-name">Nome</Label>
+                  <Input id="tournament-name" value={name} onChange={(e) => setName(e.target.value)} required autoFocus />
+                </div>
+                <div className="flex w-full max-w-90 flex-col gap-1.5">
+                  <Label htmlFor="tournament-season">Stagione</Label>
+                  <Input
+                    id="tournament-season"
+                    value={season}
+                    onChange={(e) => setSeason(e.target.value)}
+                    placeholder="es. 2026"
+                  />
+                </div>
+                <div className="flex w-full max-w-90 flex-col gap-1.5">
+                  <Label>Stato</Label>
+                  <Select value={status} onValueChange={(v) => setStatus(v as TournamentStatus)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="DRAFT">Bozza</SelectItem>
+                      <SelectItem value="ACTIVE">In corso</SelectItem>
+                      <SelectItem value="COMPLETED">Concluso</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex gap-2">
+                  <Button type="submit" disabled={submitting}>
+                    Crea torneo
+                  </Button>
+                  <Button type="button" variant="ghost" onClick={() => setShowCreateForm(false)}>
+                    Annulla
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </GradientBorder>
       )}
 
       {!sortedTournaments ? (

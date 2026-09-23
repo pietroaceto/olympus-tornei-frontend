@@ -21,6 +21,7 @@ import {
 } from '../../lib/format';
 import { adminErrorMessage } from '../../lib/adminError';
 import { useAuth } from '../../auth/AuthContext';
+import { GradientBorder } from '../../components/GradientBorder';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -150,69 +151,71 @@ export default function TournamentPage() {
       )}
 
       {availableNames.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Nuova categoria</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form className="flex flex-col items-start gap-3" onSubmit={handleCreateCategory}>
-              <div className="flex w-full max-w-90 flex-col gap-1.5">
-                <Label>Categoria</Label>
-                <Select value={name} onValueChange={(v) => setName(v as CategoryName)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableNames.map((n) => (
-                      <SelectItem key={n} value={n}>
-                        {categoryLabel(n)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex w-full max-w-90 flex-col gap-1.5">
-                <Label>Formato competizione</Label>
-                <Select value={competitionFormat} onValueChange={(v) => setCompetitionFormat(v as CompetitionFormat)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="GIRONE">Girone (tabellone finale automatico)</SelectItem>
-                    <SelectItem value="TABELLONE">Tabellone diretto (nessun girone)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex w-full max-w-90 flex-col gap-1.5">
-                <Label>Formato incontro</Label>
-                <Select value={matchFormat} onValueChange={(v) => setMatchFormat(v as MatchFormat)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="SINGLE">Partita singola (coppia fissa)</SelectItem>
-                    <SelectItem value="MULTI">A squadre (più sotto-partite)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {matchFormat === 'MULTI' && (
+        <GradientBorder>
+          <Card className="ring-0">
+            <CardHeader>
+              <CardTitle className="text-base">Nuova categoria</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form className="flex flex-col items-start gap-3" onSubmit={handleCreateCategory}>
                 <div className="flex w-full max-w-90 flex-col gap-1.5">
-                  <Label htmlFor="sub-matches-count">Numero sotto-partite</Label>
-                  <Input
-                    id="sub-matches-count"
-                    type="number"
-                    min={1}
-                    value={subMatchesCount}
-                    onChange={(e) => setSubMatchesCount(Number(e.target.value))}
-                  />
+                  <Label>Categoria</Label>
+                  <Select value={name} onValueChange={(v) => setName(v as CategoryName)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableNames.map((n) => (
+                        <SelectItem key={n} value={n}>
+                          {categoryLabel(n)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
-              <Button type="submit" disabled={submitting}>
-                Crea categoria
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                <div className="flex w-full max-w-90 flex-col gap-1.5">
+                  <Label>Formato competizione</Label>
+                  <Select value={competitionFormat} onValueChange={(v) => setCompetitionFormat(v as CompetitionFormat)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="GIRONE">Girone (tabellone finale automatico)</SelectItem>
+                      <SelectItem value="TABELLONE">Tabellone diretto (nessun girone)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex w-full max-w-90 flex-col gap-1.5">
+                  <Label>Formato incontro</Label>
+                  <Select value={matchFormat} onValueChange={(v) => setMatchFormat(v as MatchFormat)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SINGLE">Partita singola (coppia fissa)</SelectItem>
+                      <SelectItem value="MULTI">A squadre (più sotto-partite)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {matchFormat === 'MULTI' && (
+                  <div className="flex w-full max-w-90 flex-col gap-1.5">
+                    <Label htmlFor="sub-matches-count">Numero sotto-partite</Label>
+                    <Input
+                      id="sub-matches-count"
+                      type="number"
+                      min={1}
+                      value={subMatchesCount}
+                      onChange={(e) => setSubMatchesCount(Number(e.target.value))}
+                    />
+                  </div>
+                )}
+                <Button type="submit" disabled={submitting}>
+                  Crea categoria
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </GradientBorder>
       )}
 
       <ConfirmDialog

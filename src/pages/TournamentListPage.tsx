@@ -5,6 +5,7 @@ import { apiGet } from '../api/client';
 import type { CategoryResponse, TournamentStatus } from '../api/types';
 import { tournamentStatusLabel } from '../lib/format';
 import type { PublicOutletContext } from '../components/PublicShell';
+import { GradientBorder } from '../components/GradientBorder';
 import { Badge } from '../components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -83,7 +84,7 @@ export default function TournamentListPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((t) => (
-            <div key={t.id} className="rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 p-[1.5px]">
+            <GradientBorder key={t.id}>
               <Card className="h-full justify-between gap-3 ring-0">
                 <CardHeader className="gap-1">
                   <div className="flex items-start justify-between gap-2">
@@ -104,7 +105,7 @@ export default function TournamentListPage() {
                   </Button>
                 </CardFooter>
               </Card>
-            </div>
+            </GradientBorder>
           ))}
         </div>
       )}

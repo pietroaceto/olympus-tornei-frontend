@@ -6,6 +6,7 @@ import { apiPost } from '../../api/client';
 import type { UserResponse } from '../../api/types';
 import { adminErrorMessage } from '../../lib/adminError';
 import { useAuth } from '../../auth/AuthContext';
+import { GradientBorder } from '../../components/GradientBorder';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -47,33 +48,35 @@ export default function UsersPage() {
         aggiungere un nuovo accesso amministratore.
       </p>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Nuovo amministratore</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form className="flex flex-col items-start gap-3" onSubmit={handleSubmit}>
-            <div className="flex w-full max-w-90 flex-col gap-1.5">
-              <Label htmlFor="new-username">Username</Label>
-              <Input id="new-username" value={username} onChange={(e) => setUsername(e.target.value)} required />
-            </div>
-            <div className="flex w-full max-w-90 flex-col gap-1.5">
-              <Label htmlFor="new-password">Password (min. 8 caratteri)</Label>
-              <Input
-                id="new-password"
-                type="password"
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" disabled={submitting}>
-              Crea utente
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      <GradientBorder>
+        <Card className="ring-0">
+          <CardHeader>
+            <CardTitle className="text-base">Nuovo amministratore</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form className="flex flex-col items-start gap-3" onSubmit={handleSubmit}>
+              <div className="flex w-full max-w-90 flex-col gap-1.5">
+                <Label htmlFor="new-username">Username</Label>
+                <Input id="new-username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+              </div>
+              <div className="flex w-full max-w-90 flex-col gap-1.5">
+                <Label htmlFor="new-password">Password (min. 8 caratteri)</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  minLength={8}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" disabled={submitting}>
+                Crea utente
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </GradientBorder>
     </div>
   );
 }

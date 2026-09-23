@@ -23,6 +23,7 @@ import { adminErrorMessage } from '../../lib/adminError';
 import { nextPowerOfTwo } from '../../lib/bracket';
 import { useAuth } from '../../auth/AuthContext';
 import Bracket from '../../components/Bracket';
+import { GradientBorder } from '../../components/GradientBorder';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -407,42 +408,44 @@ export default function CategoryPage() {
         {category.scheduleLocked ? ' · Rosa bloccata' : ''}
       </p>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Squadre</CardTitle>
-          {!category.scheduleLocked && (
-            <CardAction>
-              <Button
-                type="button"
-                size="icon"
-                aria-label="Aggiungi squadra"
-                className="rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-600"
-                onClick={() => setShowAddTeamDialog(true)}
-              >
-                <Plus />
-              </Button>
-            </CardAction>
-          )}
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          {teams.length === 0 ? (
-            <p className="text-muted-foreground">Nessuna squadra ancora inserita.</p>
-          ) : (
-            <ul className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
-              {teams.map((team) => (
-                <TeamCard
-                  key={team.id}
-                  team={team}
-                  locked={category.scheduleLocked}
-                  token={token}
-                  onChanged={load}
-                  onUnauthorized={onUnauthorized}
-                />
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+      <GradientBorder>
+        <Card className="ring-0">
+          <CardHeader>
+            <CardTitle className="text-base">Squadre</CardTitle>
+            {!category.scheduleLocked && (
+              <CardAction>
+                <Button
+                  type="button"
+                  size="icon"
+                  aria-label="Aggiungi squadra"
+                  className="rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-600"
+                  onClick={() => setShowAddTeamDialog(true)}
+                >
+                  <Plus />
+                </Button>
+              </CardAction>
+            )}
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            {teams.length === 0 ? (
+              <p className="text-muted-foreground">Nessuna squadra ancora inserita.</p>
+            ) : (
+              <ul className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
+                {teams.map((team) => (
+                  <TeamCard
+                    key={team.id}
+                    team={team}
+                    locked={category.scheduleLocked}
+                    token={token}
+                    onChanged={load}
+                    onUnauthorized={onUnauthorized}
+                  />
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      </GradientBorder>
 
       <Dialog open={showAddTeamDialog} onOpenChange={setShowAddTeamDialog}>
         <DialogContent>
@@ -473,129 +476,133 @@ export default function CategoryPage() {
       </Dialog>
 
       {category.competitionFormat === 'GIRONE' && (
-        <Card>
+        <GradientBorder>
+          <Card className="ring-0">
+            <CardHeader>
+              <CardTitle className="text-base">Girone</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  disabled={busy || category.scheduleLocked || teams.length < 2}
+                  onClick={handleGenerateSchedule}
+                >
+                  {rounds.length > 0 ? 'Rigenera calendario' : 'Genera calendario'}
+                </Button>
+                {(rounds.length > 0 || category.scheduleLocked) && (
+                  <Button type="button" variant="destructive" disabled={busy} onClick={() => setConfirmResetSchedule(true)}>
+                    Reset girone
+                  </Button>
+                )}
+              </div>
+              {rounds.length === 0 ? (
+                <p className="text-muted-foreground">Calendario non ancora generato.</p>
+              ) : (
+                <div className="flex flex-col gap-6">
+                  {rounds.map((round) => (
+                    <div key={round.roundNumber}>
+                      <h4 className="mb-2 text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+                        Giornata {round.roundNumber}
+                      </h4>
+                      <ul className="flex flex-col gap-2">
+                        {round.matches.map((match) => (
+                          <li key={match.id}>
+                            <Link
+                              to={`/admin/partite/${match.id}`}
+                              className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-xl border bg-card px-4 py-3 text-card-foreground"
+                            >
+                              <span className="truncate">{teamLabel(match.homeTeamName)}</span>
+                              <span className="text-center text-sm text-muted-foreground">vs</span>
+                              <span className="truncate">{teamLabel(match.awayTeamName)}</span>
+                              <Badge variant={match.status === 'PLAYED' ? 'default' : 'outline'}>
+                                {matchStatusLabel(match.status)}
+                              </Badge>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </GradientBorder>
+      )}
+
+      <GradientBorder>
+        <Card className="ring-0">
           <CardHeader>
-            <CardTitle className="text-base">Girone</CardTitle>
+            <CardTitle className="text-base">Tabellone</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                disabled={busy || category.scheduleLocked || teams.length < 2}
-                onClick={handleGenerateSchedule}
-              >
-                {rounds.length > 0 ? 'Rigenera calendario' : 'Genera calendario'}
-              </Button>
-              {(rounds.length > 0 || category.scheduleLocked) && (
-                <Button type="button" variant="destructive" disabled={busy} onClick={() => setConfirmResetSchedule(true)}>
-                  Reset girone
-                </Button>
-              )}
-            </div>
-            {rounds.length === 0 ? (
-              <p className="text-muted-foreground">Calendario non ancora generato.</p>
-            ) : (
-              <div className="flex flex-col gap-6">
-                {rounds.map((round) => (
-                  <div key={round.roundNumber}>
-                    <h4 className="mb-2 text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-                      Giornata {round.roundNumber}
-                    </h4>
-                    <ul className="flex flex-col gap-2">
-                      {round.matches.map((match) => (
-                        <li key={match.id}>
-                          <Link
-                            to={`/admin/partite/${match.id}`}
-                            className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-xl border bg-card px-4 py-3 text-card-foreground"
-                          >
-                            <span className="truncate">{teamLabel(match.homeTeamName)}</span>
-                            <span className="text-center text-sm text-muted-foreground">vs</span>
-                            <span className="truncate">{teamLabel(match.awayTeamName)}</span>
-                            <Badge variant={match.status === 'PLAYED' ? 'default' : 'outline'}>
-                              {matchStatusLabel(match.status)}
-                            </Badge>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
+            <p className="text-sm text-muted-foreground">{competitionFormatLabel(category.competitionFormat)}</p>
+            {category.phase === 'GIRONE' && category.competitionFormat === 'GIRONE' && (
+              <>
+                <p className="text-muted-foreground">
+                  Il tabellone viene generato automaticamente, con tutte le squadre, non appena l'ultimo risultato del
+                  girone viene inserito. Puoi comunque generarlo subito qui sotto, se necessario.
+                </p>
+                <form className="flex flex-col items-start gap-3" onSubmit={handleGenerateBracket}>
+                  <div className="flex w-full max-w-90 flex-col gap-1.5">
+                    <Label htmlFor="qualified-count">Squadre qualificate</Label>
+                    <Input
+                      id="qualified-count"
+                      type="number"
+                      min={2}
+                      max={teams.length}
+                      value={qualifiedCount}
+                      onChange={(e) => setQualifiedCount(Number(e.target.value))}
+                    />
                   </div>
-                ))}
-              </div>
+                  <Button type="submit" disabled={busy || teams.length < 2}>
+                    Genera tabellone ora
+                  </Button>
+                </form>
+              </>
+            )}
+            {category.phase === 'GIRONE' && category.competitionFormat === 'TABELLONE' && (
+              showManualForm ? (
+                <ManualBracketForm
+                  teams={teams}
+                  token={token}
+                  categoryId={categoryId}
+                  onDone={() => {
+                    setShowManualForm(false);
+                    load();
+                  }}
+                  onCancel={() => setShowManualForm(false)}
+                  onUnauthorized={onUnauthorized}
+                />
+              ) : (
+                <div className="flex gap-2">
+                  <Button type="button" disabled={busy || teams.length < 2} onClick={handleGenerateRandomBracket}>
+                    Genera casuale
+                  </Button>
+                  <Button type="button" variant="outline" disabled={teams.length < 2} onClick={() => setShowManualForm(true)}>
+                    Inserisci accoppiamenti manualmente
+                  </Button>
+                </div>
+              )
+            )}
+            {category.phase !== 'GIRONE' && bracket.totalRounds !== null && (
+              <>
+                <div className="flex gap-2">
+                  <Button type="button" variant="destructive" disabled={busy} onClick={() => setConfirmResetBracket(true)}>
+                    Reset tabellone
+                  </Button>
+                </div>
+                <Bracket
+                  rounds={bracket.rounds}
+                  totalRounds={bracket.totalRounds}
+                  onMatchClick={(matchId) => navigate(`/admin/partite/${matchId}`)}
+                />
+              </>
             )}
           </CardContent>
         </Card>
-      )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Tabellone</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <p className="text-sm text-muted-foreground">{competitionFormatLabel(category.competitionFormat)}</p>
-          {category.phase === 'GIRONE' && category.competitionFormat === 'GIRONE' && (
-            <>
-              <p className="text-muted-foreground">
-                Il tabellone viene generato automaticamente, con tutte le squadre, non appena l'ultimo risultato del
-                girone viene inserito. Puoi comunque generarlo subito qui sotto, se necessario.
-              </p>
-              <form className="flex flex-col items-start gap-3" onSubmit={handleGenerateBracket}>
-                <div className="flex w-full max-w-90 flex-col gap-1.5">
-                  <Label htmlFor="qualified-count">Squadre qualificate</Label>
-                  <Input
-                    id="qualified-count"
-                    type="number"
-                    min={2}
-                    max={teams.length}
-                    value={qualifiedCount}
-                    onChange={(e) => setQualifiedCount(Number(e.target.value))}
-                  />
-                </div>
-                <Button type="submit" disabled={busy || teams.length < 2}>
-                  Genera tabellone ora
-                </Button>
-              </form>
-            </>
-          )}
-          {category.phase === 'GIRONE' && category.competitionFormat === 'TABELLONE' && (
-            showManualForm ? (
-              <ManualBracketForm
-                teams={teams}
-                token={token}
-                categoryId={categoryId}
-                onDone={() => {
-                  setShowManualForm(false);
-                  load();
-                }}
-                onCancel={() => setShowManualForm(false)}
-                onUnauthorized={onUnauthorized}
-              />
-            ) : (
-              <div className="flex gap-2">
-                <Button type="button" disabled={busy || teams.length < 2} onClick={handleGenerateRandomBracket}>
-                  Genera casuale
-                </Button>
-                <Button type="button" variant="outline" disabled={teams.length < 2} onClick={() => setShowManualForm(true)}>
-                  Inserisci accoppiamenti manualmente
-                </Button>
-              </div>
-            )
-          )}
-          {category.phase !== 'GIRONE' && bracket.totalRounds !== null && (
-            <>
-              <div className="flex gap-2">
-                <Button type="button" variant="destructive" disabled={busy} onClick={() => setConfirmResetBracket(true)}>
-                  Reset tabellone
-                </Button>
-              </div>
-              <Bracket
-                rounds={bracket.rounds}
-                totalRounds={bracket.totalRounds}
-                onMatchClick={(matchId) => navigate(`/admin/partite/${matchId}`)}
-              />
-            </>
-          )}
-        </CardContent>
-      </Card>
+      </GradientBorder>
 
       <ConfirmDialog
         open={confirmResetSchedule}
